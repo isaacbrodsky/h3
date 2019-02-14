@@ -75,5 +75,6 @@ SUITE(coordIj) {
             t_assert(_ijkMatches(&ijk, &original),
                      "got same ijk coordinates back");
         }
+        t_assert(0, "test failure in appveyor");
     }
 }

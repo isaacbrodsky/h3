@@ -30,8 +30,7 @@ environment:
 build_script:
   - cmake "-G%GENERATOR%" -H. -Bbuild
   - cmake --build build --config "%CONFIG%"
-  # Intentionally failing the build to check the test
-  #- cmake --build build --config "%CONFIG%" binding-functions
+  - cmake --build build --config "%CONFIG%" binding-functions
 
 test_script:
   - ps: cd build
