@@ -38,4 +38,5 @@ test_script:
   - ctest -VV -C "%CONFIG%"
   - ps: |
       $ErrorActionPreference = "Stop"
+      New-Item -ItemType file "binding-functions"
       if ((Get-Item "binding-functions").Length -lt 10) { $host.SetShouldExit(1) }
