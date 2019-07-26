@@ -104,4 +104,10 @@ SUITE(h3Api) {
         t_assert(H3_VERSION_MINOR >= 0, "minor version is set");
         t_assert(H3_VERSION_PATCH >= 0, "patch version is set");
     }
+
+    TEST(failValgrind) {
+        // Intentionally leak some memory to demonstrate that the Valgrind test
+        // fails
+        malloc(100);
+    }
 }
