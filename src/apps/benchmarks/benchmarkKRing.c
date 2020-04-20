@@ -23,7 +23,7 @@ H3Index pentagon = 0x89080000003ffff;
 
 BEGIN_BENCHMARKS();
 
-H3Index* out = malloc(H3_EXPORT(maxKringSize)(40) * sizeof(H3Index));
+H3Index* out = calloc(H3_EXPORT(maxKringSize)(40), sizeof(H3Index));
 
 BENCHMARK(kRing10, 10000, { H3_EXPORT(kRing)(hex, 10, out); });
 BENCHMARK(kRing20, 10000, { H3_EXPORT(kRing)(hex, 20, out); });

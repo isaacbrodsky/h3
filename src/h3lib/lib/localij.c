@@ -25,6 +25,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "baseCells.h"
 #include "faceijk.h"
 #include "h3Index.h"

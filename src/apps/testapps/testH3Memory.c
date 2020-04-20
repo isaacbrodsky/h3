@@ -20,6 +20,8 @@
  */
 
 #include <math.h>
+#include <string.h>
+
 #include "geoCoord.h"
 #include "h3Index.h"
 #include "h3api.h"
@@ -28,6 +30,9 @@
 
 // Whether to fail all allocations
 static bool failAlloc = false;
+// Whether to call memset after malloc (test for assumptions that the memory is
+// zero'd)
+static bool mallocMemset = false;
 // Actual number of malloc/calloc/realloc calls observed
 static int actualAllocCalls = 0;
 // Actual number of free calls observed
@@ -35,8 +40,11 @@ static int actualFreeCalls = 0;
 // Set to non-zero to begin failing allocations after a certain number of calls
 static int permittedAllocCalls = 0;
 
+H3Index sunnyvale = 0x89283470c27ffff;
+
 void resetMemoryCounters(int permitted) {
     failAlloc = false;
+    mallocMemset = false;
     actualAllocCalls = 0;
     actualFreeCalls = 0;
     permittedAllocCalls = permitted;
@@ -50,7 +58,13 @@ void* test_prefix_malloc(size_t size) {
     if (failAlloc) {
         return NULL;
     }
-    return malloc(size);
+    void* ptr = malloc(size);
+    if (mallocMemset) {
+        for (size_t i = 0; i + sizeof(H3Index) <= size; i += sizeof(H3Index)) {
+            memcpy(ptr + i, &sunnyvale, sizeof(H3Index));
+        }
+    }
+    return ptr;
 }
 
 void* test_prefix_calloc(size_t num, size_t size) {
@@ -80,9 +94,39 @@ void test_prefix_free(void* ptr) {
     return free(ptr);
 }
 
-H3Index sunnyvale = 0x89283470c27ffff;
-
 SUITE(h3Memory) {
+    TEST(kRing) {
+        int k = 2;
+        int hexCount = H3_EXPORT(maxKringSize)(k);
+        H3Index* kRingOutput = calloc(hexCount, sizeof(H3Index));
+
+        resetMemoryCounters(0);
+        mallocMemset = true;
+        H3_EXPORT(kRing)(sunnyvale, k, kRingOutput);
+        t_assert(actualAllocCalls == 1, "kRing called alloc");
+        t_assert(actualFreeCalls == 1, "kRing called free");
+
+        for (int i = 0; i < hexCount; i++) {
+            t_assert(kRingOutput[i], "kRing produced output");
+            t_assert(H3_EXPORT(h3IsValid)(kRingOutput[i]),
+                     "kRing produced valid output");
+        }
+
+        resetMemoryCounters(0);
+        failAlloc = true;
+        memset(kRingOutput, 0, hexCount * sizeof(H3Index));
+        H3_EXPORT(kRing)(sunnyvale, k, kRingOutput);
+        t_assert(actualAllocCalls == 1, "kRing called alloc");
+        t_assert(actualFreeCalls == 0, "kRing did not call free");
+
+        for (int i = 0; i < hexCount; i++) {
+            t_assert(!kRingOutput[i],
+                     "kRing did not produce output without alloc");
+        }
+
+        free(kRingOutput);
+    }
+
     TEST(compact) {
         int k = 9;
         int hexCount = H3_EXPORT(maxKringSize)(k);
@@ -90,6 +134,7 @@ SUITE(h3Memory) {
 
         // Generate a set of hexagons to compact
         H3Index* sunnyvaleExpanded = calloc(hexCount, sizeof(H3Index));
+        resetMemoryCounters(0);
         H3_EXPORT(kRing)(sunnyvale, k, sunnyvaleExpanded);
         t_assert(actualAllocCalls == 1, "kRing called alloc");
         t_assert(actualFreeCalls == 1, "kRing caleld free");
@@ -121,7 +166,7 @@ SUITE(h3Memory) {
         t_assert(actualAllocCalls == 4, "alloc called four times");
         t_assert(actualFreeCalls == 3, "free called three times");
 
-        resetMemoryCounters(4);
+        resetMemoryCounters(0);
         err = H3_EXPORT(compact)(sunnyvaleExpanded, compressed, hexCount);
         t_assert(err == COMPACT_SUCCESS, "compact using successful malloc");
         t_assert(actualAllocCalls == 4, "alloc called four times");

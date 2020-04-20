@@ -18,11 +18,13 @@
  *          (see h3api.h for the main library entry functions)
  */
 #include "h3Index.h"
+
 #include <faceijk.h>
 #include <inttypes.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "alloc.h"
 #include "baseCells.h"
 #include "faceijk.h"
@@ -361,7 +363,7 @@ int H3_EXPORT(compact)(const H3Index* h3Set, H3Index* compactedSet,
             break;
         }
         H3Index* compactableHexes =
-            H3_MEMORY(malloc)(maxCompactableCount * sizeof(H3Index));
+            H3_MEMORY(calloc)(maxCompactableCount, sizeof(H3Index));
         if (!compactableHexes) {
             H3_MEMORY(free)(remainingHexes);
             H3_MEMORY(free)(hashSetArray);
