@@ -75,6 +75,8 @@ int main(int argc, char* argv[]) {
         h3 = H3_EXPORT(stringToH3)(h3Str);
 
         printf("test: (%s=>%llx)\n", h3Str, h3);
+        sscanf(h3Str, "%llx", &h3);
+        printf("test2: (%s=>%llx)\n", h3Str, h3);
         printf("test output: %llx\n", 0xffffffffffffffff);
         int a;
         int r = sscanf("ffffffffffffffff 2", "%llx %d", &h3, &a);
