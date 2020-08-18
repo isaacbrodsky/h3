@@ -35,6 +35,7 @@ option(BUILD_FILTERS "Build filter applications." ON)
 option(BUILD_GENERATORS "Build code generation applications." ON)
 
 if(WIN32)
+    # Use bash (usually from Git for Windows) for piping results
     set(SHELL bash -c)
 
     set(EXECUTABLE_OUTPUT_PATH bin)
@@ -478,12 +479,7 @@ if(BUILD_TESTING)
     macro(add_h3_test_with_file name srcfile argfile)
         add_h3_test_common(${name} ${srcfile})
         # add a special command (so we don't need to read the test file from the test program)
-        if(WIN32)
-            # set(dump_command "Get-Content -AsByteStream")
-            set(dump_command "cat")
-        else()
-            set(dump_command "cat")
-        endif()
+        set(dump_command "cat")
 
         add_test(NAME ${name}_test${test_number}
                  COMMAND ${SHELL} "${dump_command} ${argfile} | ${TEST_WRAPPER_STR} $<TARGET_FILE:${name}>")

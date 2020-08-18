@@ -74,18 +74,6 @@ int main(int argc, char* argv[]) {
         H3Index h3;
         h3 = H3_EXPORT(stringToH3)(h3Str);
 
-        int i = 0;
-        for (char* zzz = h3Str; *zzz; zzz++) {
-            printf("%d: %x %c\n", i++, *zzz, *zzz);
-        }
-        printf("test: (%s=>%llx)\n", h3Str, h3);
-        sscanf(h3Str, "%llx", &h3);
-        printf("test2: (%s=>%llx)\n", h3Str, h3);
-        printf("test output: %llx\n", 0xffffffffffffffff);
-        int a;
-        int r = sscanf("ffffffffffffffff 2", "%llx %d", &h3, &a);
-        printf("%d: %llx %d\n", r, h3, a);
-
         GeoCoord coord;
         setGeoDegs(&coord, latDegs, lonDegs);
 
