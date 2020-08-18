@@ -74,6 +74,10 @@ int main(int argc, char* argv[]) {
         H3Index h3;
         h3 = H3_EXPORT(stringToH3)(h3Str);
 
+        int i = 0;
+        for (char* zzz = h3Str; *zzz; zzz++) {
+            printf("%d: %d %c\n", i++, *zzz, *zzz);
+        }
         printf("test: (%s=>%llx)\n", h3Str, h3);
         sscanf(h3Str, "%llx", &h3);
         printf("test2: (%s=>%llx)\n", h3Str, h3);
