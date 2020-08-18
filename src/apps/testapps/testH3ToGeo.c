@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 
         int i = 0;
         for (char* zzz = h3Str; *zzz; zzz++) {
-            printf("%d: %d %c\n", i++, *zzz, *zzz);
+            printf("%d: %x %c\n", i++, *zzz, *zzz);
         }
         printf("test: (%s=>%llx)\n", h3Str, h3);
         sscanf(h3Str, "%llx", &h3);
