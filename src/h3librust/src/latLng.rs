@@ -288,92 +288,127 @@ pub fn getHexagonAreaAvgKm2(res: i32, out: &mut f64) -> H3Error {
     H3Error::E_SUCCESS
 }
 
-// H3Error H3_EXPORT(getHexagonAreaAvgM2)(int res, double *out) {
-//     static const double areas[] = {
-//         4.357449416078390e+12, 6.097884417941339e+11, 8.680178039899731e+10,
-//         1.239343465508818e+10, 1.770347654491309e+09, 2.529038581819452e+08,
-//         3.612906216441250e+07, 5.161293359717198e+06, 7.373275975944188e+05,
-//         1.053325134272069e+05, 1.504750190766437e+04, 2.149643129451882e+03,
-//         3.070918756316063e+02, 4.387026794728301e+01, 6.267181135324322e+00,
-//         8.953115907605802e-01};
-//     if (res < 0 || res > MAX_H3_RES) {
-//         return E_RES_DOMAIN;
-//     }
-//     *out = areas[res];
-//     return E_SUCCESS;
-// }
+pub fn getHexagonAreaAvgM2(res: i32, out: &mut f64) -> H3Error {
+    const areas: [f64; 16] = [
+        4.357449416078390e+12,
+        6.097884417941339e+11,
+        8.680178039899731e+10,
+        1.239343465508818e+10,
+        1.770347654491309e+09,
+        2.529038581819452e+08,
+        3.612906216441250e+07,
+        5.161293359717198e+06,
+        7.373275975944188e+05,
+        1.053325134272069e+05,
+        1.504750190766437e+04,
+        2.149643129451882e+03,
+        3.070918756316063e+02,
+        4.387026794728301e+01,
+        6.267181135324322e+00,
+        8.953115907605802e-01,
+    ];
+    if res < 0 || res > MAX_H3_RES as i32 {
+        return H3Error::E_RES_DOMAIN;
+    }
+    *out = areas[res as usize];
+    H3Error::E_SUCCESS
+}
 
-// H3Error H3_EXPORT(getHexagonEdgeLengthAvgKm)(int res, double *out) {
-//     static const double lens[] = {
-//         1107.712591, 418.6760055, 158.2446558, 59.81085794,
-//         22.6063794,  8.544408276, 3.229482772, 1.220629759,
-//         0.461354684, 0.174375668, 0.065907807, 0.024910561,
-//         0.009415526, 0.003559893, 0.001348575, 0.000509713};
-//     if (res < 0 || res > MAX_H3_RES) {
-//         return E_RES_DOMAIN;
-//     }
-//     *out = lens[res];
-//     return E_SUCCESS;
-// }
+pub fn getHexagonEdgeLengthAvgKm(res: i32, out: &mut f64) -> H3Error {
+    const lens: [f64; 16] = [
+        1107.712591,
+        418.6760055,
+        158.2446558,
+        59.81085794,
+        22.6063794,
+        8.544408276,
+        3.229482772,
+        1.220629759,
+        0.461354684,
+        0.174375668,
+        0.065907807,
+        0.024910561,
+        0.009415526,
+        0.003559893,
+        0.001348575,
+        0.000509713,
+    ];
+    if res < 0 || res > MAX_H3_RES as i32 {
+        return H3Error::E_RES_DOMAIN;
+    }
+    *out = lens[res as usize];
+    H3Error::E_SUCCESS
+}
 
-// H3Error H3_EXPORT(getHexagonEdgeLengthAvgM)(int res, double *out) {
-//     static const double lens[] = {
-//         1107712.591, 418676.0055, 158244.6558, 59810.85794,
-//         22606.3794,  8544.408276, 3229.482772, 1220.629759,
-//         461.3546837, 174.3756681, 65.90780749, 24.9105614,
-//         9.415526211, 3.559893033, 1.348574562, 0.509713273};
-//     if (res < 0 || res > MAX_H3_RES) {
-//         return E_RES_DOMAIN;
-//     }
-//     *out = lens[res];
-//     return E_SUCCESS;
-// }
+pub fn getHexagonEdgeLengthAvgM(res: i32, out: &mut f64) -> H3Error {
+    const lens: [f64; 16] = [
+        1107712.591,
+        418676.0055,
+        158244.6558,
+        59810.85794,
+        22606.3794,
+        8544.408276,
+        3229.482772,
+        1220.629759,
+        461.3546837,
+        174.3756681,
+        65.90780749,
+        24.9105614,
+        9.415526211,
+        3.559893033,
+        1.348574562,
+        0.509713273,
+    ];
+    if res < 0 || res > MAX_H3_RES as i32 {
+        return H3Error::E_RES_DOMAIN;
+    }
+    *out = lens[res as usize];
+    H3Error::E_SUCCESS
+}
 
-// H3Error H3_EXPORT(getNumCells)(int res, int64_t *out) {
-//     if (res < 0 || res > MAX_H3_RES) {
-//         return E_RES_DOMAIN;
-//     }
-//     *out = 2 + 120 * _ipow(7, res);
-//     return E_SUCCESS;
-// }
+pub fn getNumCells(res: i32, out: &mut i64) -> H3Error {
+    if res < 0 || res > MAX_H3_RES as i32 {
+        return H3Error::E_RES_DOMAIN;
+    }
+    *out = 2i64 + 120i64 * 7i64.checked_pow(res.try_into().unwrap()).unwrap();
+    H3Error::E_SUCCESS
+}
 
-// /**
-//  * Surface area in radians^2 of spherical triangle on unit sphere.
-//  *
-//  * For the math, see:
-//  * https://en.wikipedia.org/wiki/Spherical_trigonometry#Area_and_spherical_excess
-//  *
-//  * @param   a  length of triangle side A in radians
-//  * @param   b  length of triangle side B in radians
-//  * @param   c  length of triangle side C in radians
-//  *
-//  * @return     area in radians^2 of triangle on unit sphere
-//  */
-// double triangleEdgeLengthsToArea(double a, double b, double c) {
-//     double s = (a + b + c) / 2;
+/**
+ * Surface area in radians^2 of spherical triangle on unit sphere.
+ *
+ * For the math, see:
+ * https://en.wikipedia.org/wiki/Spherical_trigonometry#Area_and_spherical_excess
+ *
+ * @param   a  length of triangle side A in radians
+ * @param   b  length of triangle side B in radians
+ * @param   c  length of triangle side C in radians
+ *
+ * @return     area in radians^2 of triangle on unit sphere
+ */
+pub fn triangleEdgeLengthsToArea(a: f64, b: f64, c: f64) -> f64 {
+    let mut s = (a + b + c) / 2.;
 
-//     a = (s - a) / 2;
-//     b = (s - b) / 2;
-//     c = (s - c) / 2;
-//     s = s / 2;
+    let a2 = ((s - a) / 2.).tan();
+    let b2 = ((s - b) / 2.).tan();
+    let c2 = ((s - c) / 2.).tan();
+    let s2 = (s / 2.).tan();
 
-//     return 4 * atan(sqrt(tan(s) * tan(a) * tan(b) * tan(c)));
-// }
+    return 4. * (s2 * a2 * b2 * c2).sqrt().atan();
+}
 
-// /**
-//  * Compute area in radians^2 of a spherical triangle, given its vertices.
-//  *
-//  * @param   a  vertex lat/lng in radians
-//  * @param   b  vertex lat/lng in radians
-//  * @param   c  vertex lat/lng in radians
-//  *
-//  * @return     area of triangle on unit sphere, in radians^2
-//  */
-// double triangleArea(const LatLng *a, const LatLng *b, const LatLng *c) {
-//     return triangleEdgeLengthsToArea(H3_EXPORT(distanceRads)(a, b),
-//                                      H3_EXPORT(distanceRads)(b, c),
-//                                      H3_EXPORT(distanceRads)(c, a));
-// }
+/**
+ * Compute area in radians^2 of a spherical triangle, given its vertices.
+ *
+ * @param   a  vertex lat/lng in radians
+ * @param   b  vertex lat/lng in radians
+ * @param   c  vertex lat/lng in radians
+ *
+ * @return     area of triangle on unit sphere, in radians^2
+ */
+fn triangleArea(a: LatLng, b: LatLng, c: LatLng) -> f64 {
+    triangleEdgeLengthsToArea(distanceRads(a, b), distanceRads(b, c), distanceRads(c, a))
+}
 
 // /**
 //  * Area of H3 cell in radians^2.
