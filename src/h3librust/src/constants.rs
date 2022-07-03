@@ -41,7 +41,7 @@ pub const RES0_U_GNOMONIC: f64 = 0.38196601125010500003;
 pub const MAX_H3_RES: i8 = 15;
 
 /** The number of faces on an icosahedron */
-pub const NUM_ICOSA_FACES: i8 = 20;
+pub const NUM_ICOSA_FACES: usize = 20;
 /** The number of H3 base cells */
 pub const NUM_BASE_CELLS: i8 = 122;
 /** The number of vertices in a hexagon */

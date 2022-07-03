@@ -11,11 +11,11 @@ use std::convert::TryFrom;
 #[derive(Copy, Clone)]
 pub struct CoordIJK {
     /// i component
-    i: i32,
+    pub i: i32,
     /// j component
-    j: i32,
+    pub j: i32,
     /// k component
-    k: i32,
+    pub k: i32,
 }
 
 /** @brief CoordIJK unit vectors corresponding to the 7 H3 digits.
@@ -111,7 +111,7 @@ fn _setIJK(ijk: &mut CoordIJK, i: i32, j: i32, k: i32) {
  * @param v The 2D cartesian coordinate vector.
  * @param h The ijk+ coordinates of the containing hex.
  */
-fn _hex2dToCoordIJK(v: Vec2d, h: &mut CoordIJK) {
+pub fn _hex2dToCoordIJK(v: Vec2d, h: &mut CoordIJK) {
     // quantize into the ij system and then normalize
     h.k = 0;
 
@@ -206,7 +206,7 @@ fn _hex2dToCoordIJK(v: Vec2d, h: &mut CoordIJK) {
  * @param h The ijk coordinates of the hex.
  * @param v The 2D cartesian coordinates of the hex center point.
  */
-fn _ijkToHex2d(h: CoordIJK, v: &mut Vec2d) {
+pub fn _ijkToHex2d(h: CoordIJK, v: &mut Vec2d) {
     let i = h.i - h.k;
     let j = h.j - h.k;
 
@@ -233,7 +233,7 @@ fn _ijkMatches(c1: CoordIJK, c2: CoordIJK) -> bool {
  * @param h2 The second set of ijk coordinates.
  * @param sum The sum of the two sets of ijk coordinates.
  */
-fn _ijkAdd(h1: CoordIJK, h2: CoordIJK, sum: &mut CoordIJK) {
+pub fn _ijkAdd(h1: CoordIJK, h2: CoordIJK, sum: &mut CoordIJK) {
     sum.i = h1.i + h2.i;
     sum.j = h1.j + h2.j;
     sum.k = h1.k + h2.k;
@@ -246,7 +246,7 @@ fn _ijkAdd(h1: CoordIJK, h2: CoordIJK, sum: &mut CoordIJK) {
  * @param h2 The second set of ijk coordinates.
  * @param diff The difference of the two sets of ijk coordinates (h1 - h2).
  */
-fn _ijkSub(h1: CoordIJK, h2: CoordIJK, diff: &mut CoordIJK) {
+pub fn _ijkSub(h1: CoordIJK, h2: CoordIJK, diff: &mut CoordIJK) {
     diff.i = h1.i - h2.i;
     diff.j = h1.j - h2.j;
     diff.k = h1.k - h2.k;
@@ -258,7 +258,7 @@ fn _ijkSub(h1: CoordIJK, h2: CoordIJK, diff: &mut CoordIJK) {
  * @param c The ijk coordinates to scale.
  * @param factor The scaling factor.
  */
-fn _ijkScale(c: &mut CoordIJK, factor: i32) {
+pub fn _ijkScale(c: &mut CoordIJK, factor: i32) {
     c.i *= factor;
     c.j *= factor;
     c.k *= factor;
@@ -270,7 +270,7 @@ fn _ijkScale(c: &mut CoordIJK, factor: i32) {
  *
  * @param c The ijk coordinates to normalize.
  */
-fn _ijkNormalize(c: &mut CoordIJK) {
+pub fn _ijkNormalize(c: &mut CoordIJK) {
     // remove any negative values
     if (c.i < 0) {
         c.j -= c.i;
@@ -362,7 +362,7 @@ fn _upAp7r(ijk: &mut CoordIJK) {
  *
  * @param ijk The ijk coordinates.
  */
-fn _downAp7(ijk: &mut CoordIJK) {
+pub fn _downAp7(ijk: &mut CoordIJK) {
     // res r unit vectors in res r+1
     let mut iVec = CoordIJK { i: 3, j: 0, k: 1 };
     let mut jVec = CoordIJK { i: 1, j: 3, k: 0 };
@@ -384,7 +384,7 @@ fn _downAp7(ijk: &mut CoordIJK) {
  *
  * @param ijk The ijk coordinates.
  */
-fn _downAp7r(ijk: &mut CoordIJK) {
+pub fn _downAp7r(ijk: &mut CoordIJK) {
     // res r unit vectors in res r+1
     let mut iVec = CoordIJK { i: 3, j: 1, k: 0 };
     let mut jVec = CoordIJK { i: 0, j: 3, k: 1 };
@@ -419,7 +419,7 @@ fn _neighbor(ijk: &mut CoordIJK, digit: Direction) {
  *
  * @param ijk The ijk coordinates.
  */
-fn _ijkRotate60ccw(ijk: &mut CoordIJK) {
+pub fn _ijkRotate60ccw(ijk: &mut CoordIJK) {
     // unit vector rotations
     let mut iVec = CoordIJK { i: 1, j: 1, k: 0 };
     let mut jVec = CoordIJK { i: 0, j: 1, k: 1 };
@@ -440,7 +440,7 @@ fn _ijkRotate60ccw(ijk: &mut CoordIJK) {
  *
  * @param ijk The ijk coordinates.
  */
-fn _ijkRotate60cw(ijk: &mut CoordIJK) {
+pub fn _ijkRotate60cw(ijk: &mut CoordIJK) {
     // unit vector rotations
     let mut iVec = CoordIJK { i: 1, j: 0, k: 1 };
     let mut jVec = CoordIJK { i: 1, j: 1, k: 0 };
@@ -499,7 +499,7 @@ fn _rotate60cw(digit: Direction) -> Direction {
  *
  * @param ijk The ijk coordinates.
  */
-fn _downAp3(ijk: &mut CoordIJK) {
+pub fn _downAp3(ijk: &mut CoordIJK) {
     // res r unit vectors in res r+1
     let mut iVec = CoordIJK { i: 2, j: 0, k: 1 };
     let mut jVec = CoordIJK { i: 1, j: 2, k: 0 };
@@ -521,7 +521,7 @@ fn _downAp3(ijk: &mut CoordIJK) {
  *
  * @param ijk The ijk coordinates.
  */
-fn _downAp3r(ijk: &mut CoordIJK) {
+pub fn _downAp3r(ijk: &mut CoordIJK) {
     // res r unit vectors in res r+1
     let mut iVec = CoordIJK { i: 2, j: 1, k: 0 };
     let mut jVec = CoordIJK { i: 0, j: 2, k: 1 };

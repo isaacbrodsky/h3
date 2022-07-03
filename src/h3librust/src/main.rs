@@ -2,7 +2,9 @@ mod constants;
 mod h3api;
 
 mod coordijk;
+mod faceijk;
 mod h3Index;
+mod latLng;
 mod vec2d;
 mod vec3d;
 

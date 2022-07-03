@@ -156,7 +156,6 @@ pub fn H3_SET_INDEX_DIGIT(h3: u64, res: i8, digit: Direction) -> u64 {
         | ((digit as u64) << ((MAX_H3_RES - res) * H3_PER_DIGIT_OFFSET))
 }
 
-// extern "C" {
 pub fn cellToParent(h: u64, parentRes: i8, out: &mut u64) -> H3Error {
     let childRes = H3_GET_RESOLUTION(h);
     if parentRes < 0 || parentRes > MAX_H3_RES {
@@ -174,4 +173,14 @@ pub fn cellToParent(h: u64, parentRes: i8, out: &mut u64) -> H3Error {
     *out = parentH;
     return H3Error::E_SUCCESS;
 }
-// }
+
+/**
+ * Returns whether or not a resolution is a Class III grid. Note that odd
+ * resolutions are Class III and even resolutions are Class II.
+ * @param res The H3 resolution.
+ * @return 1 if the resolution is a Class III grid, and 0 if the resolution is
+ *         a Class II grid.
+ */
+pub fn isResolutionClassIII(res: i8) -> bool {
+    res % 2 == 1
+}

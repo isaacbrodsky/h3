@@ -1,6 +1,7 @@
 /** @struct Vec2D
  *  @brief 2D floating point structure
  */
+#[derive(Copy, Clone)]
 pub struct Vec2d {
     // x component
     pub x: f64,
@@ -13,7 +14,7 @@ pub struct Vec2d {
  * @param v The 2D cartesian vector.
  * @return The magnitude of the vector.
  */
-fn _v2dMag(v: Vec2d) -> f64 {
+pub fn _v2dMag(v: Vec2d) -> f64 {
     (v.x * v.x + v.y * v.y).sqrt()
 }
 
@@ -26,7 +27,7 @@ fn _v2dMag(v: Vec2d) -> f64 {
  * @param p3 The second endpoint of the second line.
  * @param inter The intersection point.
  */
-fn _v2dIntersect(p0: Vec2d, p1: Vec2d, p2: Vec2d, p3: Vec2d, inter: &mut Vec2d) {
+pub fn _v2dIntersect(p0: Vec2d, p1: Vec2d, p2: Vec2d, p3: Vec2d, inter: &mut Vec2d) {
     let s1 = Vec2d {
         x: p1.x - p0.x,
         y: p1.y - p0.y,
@@ -49,6 +50,6 @@ fn _v2dIntersect(p0: Vec2d, p1: Vec2d, p2: Vec2d, p3: Vec2d, inter: &mut Vec2d) 
  * @param v2 Second vector to compare
  * @return Whether the vectors are equal
  */
-fn _v2dEquals(v1: Vec2d, v2: Vec2d) -> bool {
+pub fn _v2dEquals(v1: Vec2d, v2: Vec2d) -> bool {
     v1.x == v2.x && v1.y == v2.y
 }

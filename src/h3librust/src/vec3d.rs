@@ -3,6 +3,7 @@ use crate::h3api::LatLng;
 /** @struct Vec3D
  *  @brief 3D floating point structure
  */
+#[derive(Copy, Clone)]
 pub struct Vec3d {
     // x component
     pub x: f64,

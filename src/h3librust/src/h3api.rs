@@ -6,6 +6,7 @@ pub const MAX_CELL_BNDRY_VERTS: usize = 10;
 /** @struct LatLng
     @brief latitude/longitude in radians
 */
+#[derive(Copy, Clone)]
 pub struct LatLng {
     // latitude in radians
     pub lat: f64,
@@ -18,9 +19,9 @@ pub struct LatLng {
 */
 pub struct CellBoundary {
     // number of certices
-    numVerts: i32,
+    pub numVerts: i32,
     // vertices in ccw order
-    verts: [LatLng; MAX_CELL_BNDRY_VERTS],
+    pub verts: [LatLng; MAX_CELL_BNDRY_VERTS],
 }
 
 //  /** @struct GeoLoop
