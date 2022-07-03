@@ -130,9 +130,9 @@ pub fn _hex2dToCoordIJK(v: Vec2d, h: &mut CoordIJK) {
     let r1: f64 = x1 - m1 as f64;
     let r2: f64 = x2 - m2 as f64;
 
-    if (r1 < 0.5) {
-        if (r1 < 1.0 / 3.0) {
-            if (r2 < (1.0 + r1) / 2.0) {
+    if r1 < 0.5 {
+        if r1 < 1.0 / 3.0 {
+            if r2 < (1.0 + r1) / 2.0 {
                 h.i = m1;
                 h.j = m2;
             } else {
@@ -140,33 +140,33 @@ pub fn _hex2dToCoordIJK(v: Vec2d, h: &mut CoordIJK) {
                 h.j = m2 + 1;
             }
         } else {
-            if (r2 < (1.0 - r1)) {
+            if r2 < (1.0 - r1) {
                 h.j = m2;
             } else {
                 h.j = m2 + 1;
             }
 
-            if ((1.0 - r1) <= r2 && r2 < (2.0 * r1)) {
+            if (1.0 - r1) <= r2 && r2 < (2.0 * r1) {
                 h.i = m1 + 1;
             } else {
                 h.i = m1;
             }
         }
     } else {
-        if (r1 < 2.0 / 3.0) {
-            if (r2 < (1.0 - r1)) {
+        if r1 < 2.0 / 3.0 {
+            if r2 < (1.0 - r1) {
                 h.j = m2;
             } else {
                 h.j = m2 + 1;
             }
 
-            if ((2.0 * r1 - 1.0) < r2 && r2 < (1.0 - r1)) {
+            if (2.0 * r1 - 1.0) < r2 && r2 < (1.0 - r1) {
                 h.i = m1;
             } else {
                 h.i = m1 + 1;
             }
         } else {
-            if (r2 < (r1 / 2.0)) {
+            if r2 < (r1 / 2.0) {
                 h.i = m1 + 1;
                 h.j = m2;
             } else {
@@ -178,8 +178,8 @@ pub fn _hex2dToCoordIJK(v: Vec2d, h: &mut CoordIJK) {
 
     // now fold across the axes if necessary
 
-    if (v.x < 0.0) {
-        if ((h.j % 2) == 0)
+    if v.x < 0.0 {
+        if (h.j % 2) == 0
         // even
         {
             let axisi: i64 = (h.j / 2).into();
@@ -192,7 +192,7 @@ pub fn _hex2dToCoordIJK(v: Vec2d, h: &mut CoordIJK) {
         }
     }
 
-    if (v.y < 0.0) {
+    if v.y < 0.0 {
         h.i = h.i - (2 * h.j + 1) / 2;
         h.j = -1 * h.j;
     }
@@ -272,19 +272,19 @@ pub fn _ijkScale(c: &mut CoordIJK, factor: i32) {
  */
 pub fn _ijkNormalize(c: &mut CoordIJK) {
     // remove any negative values
-    if (c.i < 0) {
+    if c.i < 0 {
         c.j -= c.i;
         c.k -= c.i;
         c.i = 0;
     }
 
-    if (c.j < 0) {
+    if c.j < 0 {
         c.i -= c.j;
         c.k -= c.j;
         c.j = 0;
     }
 
-    if (c.k < 0) {
+    if c.k < 0 {
         c.i -= c.k;
         c.j -= c.k;
         c.k = 0;
@@ -292,13 +292,13 @@ pub fn _ijkNormalize(c: &mut CoordIJK) {
 
     // remove the min value if needed
     let mut min = c.i;
-    if (c.j < min) {
+    if c.j < min {
         min = c.j;
     }
-    if (c.k < min) {
+    if c.k < min {
         min = c.k;
     }
-    if (min > 0) {
+    if min > 0 {
         c.i -= min;
         c.j -= min;
         c.k -= min;
@@ -408,7 +408,7 @@ pub fn _downAp7r(ijk: &mut CoordIJK) {
  * @param digit The digit direction from the original ijk coordinates.
  */
 fn _neighbor(ijk: &mut CoordIJK, digit: Direction) {
-    if (digit > Direction::CENTER_DIGIT && digit < Direction::INVALID_DIGIT) {
+    if digit > Direction::CENTER_DIGIT && digit < Direction::INVALID_DIGIT {
         _ijkAdd(*ijk, UNIT_VECS[digit as usize], ijk);
         _ijkNormalize(ijk);
     }

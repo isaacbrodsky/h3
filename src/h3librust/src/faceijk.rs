@@ -3,7 +3,7 @@ use crate::constants::{
     RES0_U_GNOMONIC,
 };
 use crate::coordijk::{
-    CoordIJK, _downAp3, _downAp3r, _downAp7, _downAp7r, _hex2dToCoordIJK, _ijkAdd, _ijkNormalize,
+    CoordIJK, _downAp3, _downAp3r, _downAp7r, _hex2dToCoordIJK, _ijkAdd, _ijkNormalize,
     _ijkRotate60ccw, _ijkRotate60cw, _ijkScale, _ijkSub, _ijkToHex2d,
 };
 use crate::h3Index::isResolutionClassIII;
@@ -962,7 +962,7 @@ fn _geoToHex2d(g: LatLng, res: i8, face: &mut i8, v: &mut Vec2d) {
     // cos(r) = 1 - 2 * sin^2(r/2) = 1 - 2 * (sqd / 4) = 1 - sqd/2
     let mut r = (1.0 - sqd / 2.0).acos();
 
-    if (r < EPSILON) {
+    if r < EPSILON {
         v.x = 0.0;
         v.y = 0.0;
         return;
@@ -975,7 +975,7 @@ fn _geoToHex2d(g: LatLng, res: i8, face: &mut i8, v: &mut Vec2d) {
     );
 
     // adjust theta for Class III (odd resolutions)
-    if (isResolutionClassIII(res)) {
+    if isResolutionClassIII(res) {
         theta = _posAngleRads(theta - M_AP7_ROT_RADS);
     }
 
@@ -984,7 +984,7 @@ fn _geoToHex2d(g: LatLng, res: i8, face: &mut i8, v: &mut Vec2d) {
 
     // scale for current resolution length u
     r /= RES0_U_GNOMONIC;
-    for i in 0..res {
+    for _i in 0..res {
         r *= M_SQRT7;
     }
 
@@ -1011,7 +1011,7 @@ fn _hex2dToGeo(v: Vec2d, face: i8, res: i8, substrate: bool, g: &mut LatLng) {
     // calculate (r, theta) in hex2d
     let mut r = _v2dMag(v);
 
-    if (r < EPSILON) {
+    if r < EPSILON {
         *g = faceCenterGeo[face as usize];
         return;
     }
@@ -1019,14 +1019,14 @@ fn _hex2dToGeo(v: Vec2d, face: i8, res: i8, substrate: bool, g: &mut LatLng) {
     let mut theta = v.y.atan2(v.x);
 
     // scale for current resolution length u
-    for i in 0..res {
+    for _i in 0..res {
         r /= M_SQRT7;
     }
 
     // scale accordingly if this is a substrate grid
-    if (substrate) {
+    if substrate {
         r /= 3.0;
-        if (isResolutionClassIII(res)) {
+        if isResolutionClassIII(res) {
             r /= M_SQRT7;
         }
     }
@@ -1038,7 +1038,7 @@ fn _hex2dToGeo(v: Vec2d, face: i8, res: i8, substrate: bool, g: &mut LatLng) {
 
     // adjust theta for Class III
     // if a substrate grid, then it's already been adjusted for Class III
-    if (!substrate && isResolutionClassIII(res)) {
+    if !substrate && isResolutionClassIII(res) {
         theta = _posAngleRads(theta + M_AP7_ROT_RADS);
     }
 
@@ -1122,7 +1122,7 @@ fn _faceIjkPentToCellBoundary(h: FaceIJK, res: i8, start: i8, length: i8, g: &mu
         // all Class III pentagon edges cross icosa edges
         // note that Class II pentagons have vertices on the edge,
         // not edge intersections
-        if (isResolutionClassIII(res) && vert > start) {
+        if isResolutionClassIII(res) && vert > start {
             // find hex2d of the two vertexes on the last face
 
             let mut tmpFijk = fijk;
@@ -1137,7 +1137,7 @@ fn _faceIjkPentToCellBoundary(h: FaceIJK, res: i8, start: i8, length: i8, g: &mu
             tmpFijk.face = fijkOrient.face;
 
             // rotate and translate for adjacent face
-            for i in 0..fijkOrient.ccwRot60 {
+            for _i in 0..fijkOrient.ccwRot60 {
                 _ijkRotate60ccw(&mut tmpFijk.coord);
             }
 
@@ -1198,7 +1198,7 @@ fn _faceIjkPentToCellBoundary(h: FaceIJK, res: i8, start: i8, length: i8, g: &mu
         // convert vertex to lat/lng and add to the result
         // vert == start + NUM_PENT_VERTS is only used to test for possible
         // intersection on last edge
-        if (vert < start + NUM_PENT_VERTS) {
+        if vert < start + NUM_PENT_VERTS {
             let mut vec = Vec2d { x: 0., y: 0. };
             _ijkToHex2d(fijk.coord, &mut vec);
             _hex2dToGeo(
@@ -1250,7 +1250,7 @@ fn _faceIjkPentToVerts(fijk: &mut FaceIJK, res: &mut i8, fijkVerts: &mut [FaceIJ
 
     // get the correct set of substrate vertices for this resolution
     let verts: [CoordIJK; NUM_PENT_VERTS as usize];
-    if (isResolutionClassIII(*res)) {
+    if isResolutionClassIII(*res) {
         verts = vertsCIII;
     } else {
         verts = vertsCII;
@@ -1263,7 +1263,7 @@ fn _faceIjkPentToVerts(fijk: &mut FaceIJK, res: &mut i8, fijkVerts: &mut [FaceIJ
 
     // if res is Class III we need to add a cw aperture 7 to get to
     // icosahedral Class II
-    if (isResolutionClassIII(*res)) {
+    if isResolutionClassIII(*res) {
         _downAp7r(&mut fijk.coord);
         *res += 1;
     }
@@ -1349,10 +1349,10 @@ fn _faceIjkToCellBoundary(h: FaceIJK, res: i8, start: i8, length: i8, g: &mut Ce
         projection. Note that Class II cell edges have vertices on the face
         edge, with no edge line intersections.
         */
-        if (isResolutionClassIII(res)
+        if isResolutionClassIII(res)
             && vert > start
             && fijk.face != lastFace
-            && lastOverage != Overage::FACE_EDGE)
+            && lastOverage != Overage::FACE_EDGE
         {
             // find hex2d of the two vertexes on original face
             let lastV = (v + 5) % NUM_HEX_VERTS;
@@ -1424,7 +1424,7 @@ fn _faceIjkToCellBoundary(h: FaceIJK, res: i8, start: i8, length: i8, g: &mut Ce
         // convert vertex to lat/lng and add to the result
         // vert == start + NUM_HEX_VERTS is only used to test for possible
         // intersection on last edge
-        if (vert < start + NUM_HEX_VERTS) {
+        if vert < start + NUM_HEX_VERTS {
             let mut vec = Vec2d { x: 0., y: 0. };
             _ijkToHex2d(fijk.coord, &mut vec);
             _hex2dToGeo(
@@ -1483,7 +1483,7 @@ fn _faceIjkToVerts(
 
     // get the correct set of substrate vertices for this resolution
     let verts: [CoordIJK; NUM_HEX_VERTS as usize];
-    if (isResolutionClassIII(*res)) {
+    if isResolutionClassIII(*res) {
         verts = vertsCIII;
     } else {
         verts = vertsCII;
@@ -1496,7 +1496,7 @@ fn _faceIjkToVerts(
 
     // if res is Class III we need to add a cw aperture 7 to get to
     // icosahedral Class II
-    if (isResolutionClassIII(*res)) {
+    if isResolutionClassIII(*res) {
         _downAp7r(&mut fijk.coord);
         *res += 1;
     }
@@ -1544,17 +1544,17 @@ fn _adjustOverageClassII(
     }
 
     // check for overage
-    if (substrate && ijk.i + ijk.j + ijk.k == maxDim) {
+    if substrate && ijk.i + ijk.j + ijk.k == maxDim {
         // on edge
         overage = Overage::FACE_EDGE;
-    } else if (ijk.i + ijk.j + ijk.k > maxDim)
+    } else if ijk.i + ijk.j + ijk.k > maxDim
     // overage
     {
         overage = Overage::NEW_FACE;
 
         let fijkOrient: FaceOrientIJK;
-        if (ijk.k > 0) {
-            if (ijk.j > 0) {
+        if ijk.k > 0 {
+            if ijk.j > 0 {
                 // jk "quadrant"
                 fijkOrient = faceNeighbors[fijk.face as usize][JK as usize];
             } else
@@ -1586,13 +1586,13 @@ fn _adjustOverageClassII(
         fijk.face = fijkOrient.face;
 
         // rotate and translate for adjacent face
-        for i in 0..fijkOrient.ccwRot60 {
+        for _i in 0..fijkOrient.ccwRot60 {
             _ijkRotate60ccw(&mut ijk);
         }
 
         let mut transVec = fijkOrient.translate;
         let mut unitScale = unitScaleByCIIres[res as usize];
-        if (substrate) {
+        if substrate {
             unitScale *= 3;
         }
         _ijkScale(&mut transVec, unitScale);
@@ -1600,7 +1600,7 @@ fn _adjustOverageClassII(
         _ijkNormalize(&mut ijk);
 
         // overage points on pentagon boundaries can end up on edges
-        if (substrate && ijk.i + ijk.j + ijk.k == maxDim) {
+        if substrate && ijk.i + ijk.j + ijk.k == maxDim {
             // on edge
             overage = Overage::FACE_EDGE;
         }
@@ -1621,7 +1621,7 @@ fn _adjustPentVertOverage(fijk: &mut FaceIJK, res: i8) -> Overage {
     let mut overage: Overage;
     loop {
         overage = _adjustOverageClassII(fijk, res, false, true);
-        if (overage != Overage::NEW_FACE) {
+        if overage != Overage::NEW_FACE {
             break;
         }
     }

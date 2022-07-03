@@ -6,7 +6,7 @@ use crate::h3api::{H3Error, LatLng};
 /** epsilon of ~0.1mm in degrees */
 const EPSILON_DEG: f64 = 0.000000001;
 /** epsilon of ~0.1mm in radians */
-const EPSILON_RAD: f64 = (EPSILON_DEG * M_PI_180);
+const EPSILON_RAD: f64 = EPSILON_DEG * M_PI_180;
 
 /**
  * Normalizes radians to a value between 0.0 and two PI.
@@ -16,7 +16,7 @@ const EPSILON_RAD: f64 = (EPSILON_DEG * M_PI_180);
  */
 pub fn _posAngleRads(rads: f64) -> f64 {
     let mut tmp = if rads < 0.0 { rads + M_2PI } else { rads };
-    if (rads >= M_2PI) {
+    if rads >= M_2PI {
         tmp -= M_2PI
     };
     tmp
@@ -114,10 +114,10 @@ fn constrainLat(lat: f64) -> f64 {
  */
 fn constrainLng(lng: f64) -> f64 {
     let mut lngOutput = lng;
-    while (lngOutput > M_PI) {
+    while lngOutput > M_PI {
         lngOutput = lngOutput - (2. * M_PI);
     }
-    while (lngOutput < -M_PI) {
+    while lngOutput < -M_PI {
         lngOutput = lngOutput + (2. * M_PI);
     }
     lngOutput
@@ -182,7 +182,7 @@ pub fn _geoAzimuthRads(p1: LatLng, p2: LatLng) -> f64 {
  * p1.
  */
 pub fn _geoAzDistanceRads(p1: LatLng, azInput: f64, distance: f64, p2: &mut LatLng) {
-    if (distance < EPSILON) {
+    if distance < EPSILON {
         *p2 = p1;
         return;
     }
@@ -190,8 +190,8 @@ pub fn _geoAzDistanceRads(p1: LatLng, azInput: f64, distance: f64, p2: &mut LatL
     let az = _posAngleRads(azInput);
 
     // check for due north/south azimuth
-    if (az < EPSILON || (az - M_PI).abs() < EPSILON) {
-        if (az < EPSILON) {
+    if az < EPSILON || (az - M_PI).abs() < EPSILON {
+        if az < EPSILON {
             // due north
             p2.lat = p1.lat + distance;
         } else {
@@ -199,12 +199,12 @@ pub fn _geoAzDistanceRads(p1: LatLng, azInput: f64, distance: f64, p2: &mut LatL
             p2.lat = p1.lat - distance;
         }
 
-        if ((p2.lat - M_PI_2).abs() < EPSILON)
+        if (p2.lat - M_PI_2).abs() < EPSILON
         // north pole
         {
             p2.lat = M_PI_2;
             p2.lng = 0.0;
-        } else if ((p2.lat + M_PI_2).abs() < EPSILON)
+        } else if (p2.lat + M_PI_2).abs() < EPSILON
         // south pole
         {
             p2.lat = -M_PI_2;
@@ -217,19 +217,19 @@ pub fn _geoAzDistanceRads(p1: LatLng, azInput: f64, distance: f64, p2: &mut LatL
     {
         let mut sinlat: f64 =
             p1.lat.sin() * distance.cos() + p1.lat.cos() * distance.sin() * az.cos();
-        if (sinlat > 1.0) {
+        if sinlat > 1.0 {
             sinlat = 1.0
         };
-        if (sinlat < -1.0) {
+        if sinlat < -1.0 {
             sinlat = -1.0
         };
         p2.lat = sinlat.asin();
-        if ((p2.lat - M_PI_2).abs() < EPSILON)
+        if (p2.lat - M_PI_2).abs() < EPSILON
         // north pole
         {
             p2.lat = M_PI_2;
             p2.lng = 0.0;
-        } else if ((p2.lat + M_PI_2).abs() < EPSILON)
+        } else if (p2.lat + M_PI_2).abs() < EPSILON
         // south pole
         {
             p2.lat = -M_PI_2;
@@ -238,16 +238,16 @@ pub fn _geoAzDistanceRads(p1: LatLng, azInput: f64, distance: f64, p2: &mut LatL
             let mut sinlng = az.sin() * distance.sin() / p2.lat.cos();
             let mut coslng =
                 (distance.cos() - p1.lat.sin() * p2.lat.sin()) / p1.lat.cos() / p2.lat.cos();
-            if (sinlng > 1.0) {
+            if sinlng > 1.0 {
                 sinlng = 1.0;
             }
-            if (sinlng < -1.0) {
+            if sinlng < -1.0 {
                 sinlng = -1.0;
             }
-            if (coslng > 1.0) {
+            if coslng > 1.0 {
                 coslng = 1.0;
             }
-            if (coslng < -1.0) {
+            if coslng < -1.0 {
                 coslng = -1.0;
             }
             p2.lng = constrainLng(p1.lng + sinlng.atan2(coslng));
