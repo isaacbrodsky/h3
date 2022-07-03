@@ -68,7 +68,9 @@ const H3_INIT: u64 = 35184372088831u64;
  * Gets the highest bit of the H3 index.
  */
 pub fn H3_GET_HIGH_BIT(h3: u64) -> i8 {
-    ((h3 & H3_HIGH_BIT_MASK) >> H3_MAX_OFFSET).try_into().unwrap()
+    ((h3 & H3_HIGH_BIT_MASK) >> H3_MAX_OFFSET)
+        .try_into()
+        .unwrap()
 }
 
 /**
@@ -124,7 +126,9 @@ pub fn H3_SET_RESOLUTION(h3: u64, res: i8) -> u64 {
  * Gets the resolution res integer digit (0-7) of h3.
  */
 pub fn H3_GET_INDEX_DIGIT(h3: u64, res: i8) -> Direction {
-    ((h3 >> ((MAX_H3_RES - res) * H3_PER_DIGIT_OFFSET)) & H3_DIGIT_MASK).try_into().unwrap()
+    ((h3 >> ((MAX_H3_RES - res) * H3_PER_DIGIT_OFFSET)) & H3_DIGIT_MASK)
+        .try_into()
+        .unwrap()
 }
 
 /**
@@ -139,14 +143,17 @@ pub fn H3_SET_RESERVED_BITS(h3: u64, v: i8) -> u64 {
  * Gets a value in the reserved space. Should always be zero for valid indexes.
  */
 pub fn H3_GET_RESERVED_BITS(h3: u64) -> u64 {
-    ((h3 & H3_RESERVED_MASK) >> H3_RESERVED_OFFSET).try_into().unwrap()
+    ((h3 & H3_RESERVED_MASK) >> H3_RESERVED_OFFSET)
+        .try_into()
+        .unwrap()
 }
 
 /**
  * Sets the resolution res digit of h3 to the integer digit (0-7)
  */
 pub fn H3_SET_INDEX_DIGIT(h3: u64, res: i8, digit: Direction) -> u64 {
-    h3 & !(H3_DIGIT_MASK << ((MAX_H3_RES - res) * H3_PER_DIGIT_OFFSET)) | ((digit as u64) << ((MAX_H3_RES - res) * H3_PER_DIGIT_OFFSET))
+    h3 & !(H3_DIGIT_MASK << ((MAX_H3_RES - res) * H3_PER_DIGIT_OFFSET))
+        | ((digit as u64) << ((MAX_H3_RES - res) * H3_PER_DIGIT_OFFSET))
 }
 
 // extern "C" {
@@ -161,7 +168,7 @@ pub fn cellToParent(h: u64, parentRes: i8, out: &mut u64) -> H3Error {
         return H3Error::E_SUCCESS;
     }
     let mut parentH = H3_SET_RESOLUTION(h, parentRes);
-    for i in parentRes + 1 .. childRes + 1 {
+    for i in parentRes + 1..childRes + 1 {
         parentH = H3_SET_INDEX_DIGIT(parentH, i, Direction::INVALID_DIGIT);
     }
     *out = parentH;

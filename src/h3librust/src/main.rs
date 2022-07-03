@@ -1,8 +1,10 @@
-mod h3api;
 mod constants;
+mod h3api;
 
 mod coordijk;
 mod h3Index;
+mod vec2d;
+mod vec3d;
 
 type Error = ();
 
