@@ -1,6 +1,7 @@
 mod constants;
 mod h3api;
 
+mod baseCells;
 mod coordijk;
 mod faceijk;
 mod h3Index;

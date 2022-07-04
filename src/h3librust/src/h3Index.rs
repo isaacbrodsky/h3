@@ -62,7 +62,7 @@ const H3_DIGIT_MASK_NEGATIVE: u64 = !H3_DIGIT_MASK;
 // H3 index with mode 0, res 0, base cell 0, and 7 for all index digits.
 // Typically used to initialize the creation of an H3 cell index, which
 // expects all direction digits to be 7 beyond the cell's resolution.
-const H3_INIT: u64 = 35184372088831u64;
+pub const H3_INIT: u64 = 35184372088831u64;
 
 /**
  * Gets the highest bit of the H3 index.
