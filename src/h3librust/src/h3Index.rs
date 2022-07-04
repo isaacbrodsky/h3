@@ -934,11 +934,11 @@ fn _faceIjkToH3(fijk: FaceIJK, res: i8) -> u64 {
             }
         }
 
-        for i in 0..numRots {
+        for _i in 0..numRots {
             h = _h3RotatePent60ccw(h);
         }
     } else {
-        for i in 0..numRots {
+        for _i in 0..numRots {
             h = _h3Rotate60ccw(h);
         }
     }

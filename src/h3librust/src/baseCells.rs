@@ -1,4 +1,4 @@
-use crate::constants::{H3_CELL_MODE, MAX_H3_RES, NUM_BASE_CELLS, NUM_ICOSA_FACES};
+use crate::constants::{H3_CELL_MODE, NUM_BASE_CELLS, NUM_ICOSA_FACES};
 use crate::coordijk::{CoordIJK, Direction, DIGITS};
 use crate::faceijk::FaceIJK;
 use crate::h3Index::{H3_INIT, H3_SET_BASE_CELL, H3_SET_MODE};
