@@ -18,7 +18,7 @@ pub fn _posAngleRads(rads: f64) -> f64 {
     let mut tmp = if rads < 0.0 { rads + M_2PI } else { rads };
     if rads >= M_2PI {
         tmp -= M_2PI
-    };
+    }
     tmp
 }
 
@@ -168,7 +168,7 @@ pub fn distanceM(a: LatLng, b: LatLng) -> f64 {
  */
 pub fn _geoAzimuthRads(p1: LatLng, p2: LatLng) -> f64 {
     (p2.lat.cos() * (p2.lng - p1.lng).sin())
-        .atan2(p1.lat.cos() * p2.lng.sin() - p1.lat.sin() * p2.lat.cos() * (p2.lng - p1.lng).cos())
+        .atan2(p1.lat.cos() * p2.lat.sin() - p1.lat.sin() * p2.lat.cos() * (p2.lng - p1.lng).cos())
 }
 
 /**
@@ -387,7 +387,7 @@ pub fn getNumCells(res: i32, out: &mut i64) -> H3Error {
  * @return     area in radians^2 of triangle on unit sphere
  */
 pub fn triangleEdgeLengthsToArea(a: f64, b: f64, c: f64) -> f64 {
-    let mut s = (a + b + c) / 2.;
+    let s = (a + b + c) / 2.;
 
     let a2 = ((s - a) / 2.).tan();
     let b2 = ((s - b) / 2.).tan();

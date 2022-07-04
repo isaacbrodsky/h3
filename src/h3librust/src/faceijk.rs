@@ -63,7 +63,7 @@ enum Overage {
 const M_SQRT7: f64 = 2.6457513110645905905016157536392604257102;
 
 /** @brief icosahedron face centers in lat/lng radians */
-const faceCenterGeo: [LatLng; NUM_ICOSA_FACES] = [
+const faceCenterGeo: [LatLng; NUM_ICOSA_FACES as usize] = [
     LatLng {
         lat: 0.803582649718989942,
         lng: 1.248397419617396099,
@@ -147,7 +147,7 @@ const faceCenterGeo: [LatLng; NUM_ICOSA_FACES] = [
 ];
 
 /** @brief icosahedron face centers in x/y/z on the unit sphere */
-const faceCenterPoint: [Vec3d; NUM_ICOSA_FACES] = [
+const faceCenterPoint: [Vec3d; NUM_ICOSA_FACES as usize] = [
     Vec3d {
         x: 0.2199307791404606,
         y: 0.6583691780274996,
@@ -253,7 +253,7 @@ const faceCenterPoint: [Vec3d; NUM_ICOSA_FACES] = [
 /** @brief icosahedron face ijk axes as azimuth in radians from face center to
  * vertex 0/1/2 respectively
  */
-const faceAxesAzRadsCII: [[f64; 3]; NUM_ICOSA_FACES] = [
+const faceAxesAzRadsCII: [[f64; 3]; NUM_ICOSA_FACES as usize] = [
     [
         5.619958268523939882,
         3.525563166130744542,
@@ -357,7 +357,7 @@ const faceAxesAzRadsCII: [[f64; 3]; NUM_ICOSA_FACES] = [
 ];
 
 /** @brief Definition of which faces neighbor each other. */
-const faceNeighbors: [[FaceOrientIJK; 4]; NUM_ICOSA_FACES] = [
+const faceNeighbors: [[FaceOrientIJK; 4]; NUM_ICOSA_FACES as usize] = [
     [
         // face 0
         FaceOrientIJK {
@@ -823,7 +823,7 @@ const faceNeighbors: [[FaceOrientIJK; 4]; NUM_ICOSA_FACES] = [
 /** @brief direction from the origin face to the destination face, relative to
  * the origin face's coordinate system, or -1 if not adjacent.
  */
-const adjacentFaceDir: [[i8; NUM_ICOSA_FACES]; NUM_ICOSA_FACES] = [
+const adjacentFaceDir: [[i8; NUM_ICOSA_FACES as usize]; NUM_ICOSA_FACES as usize] = [
     [
         0, KI, -1, -1, IJ, JK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     ], // face 0
@@ -936,7 +936,7 @@ const unitScaleByCIIres: [i32; 17] = [
  * @param res The desired H3 resolution for the encoding.
  * @param h The FaceIJK address of the containing cell at resolution res.
  */
-fn _geoToFaceIjk(g: LatLng, res: i8, h: &mut FaceIJK) {
+pub fn _geoToFaceIjk(g: LatLng, res: i8, h: &mut FaceIJK) {
     // first convert to hex2d
     let mut v = Vec2d { x: 0.0, y: 0.0 };
     _geoToHex2d(g, res, &mut h.face, &mut v);

@@ -83,6 +83,42 @@ impl TryFrom<u64> for Direction {
     }
 }
 
+impl TryFrom<i8> for Direction {
+    type Error = &'static str;
+
+    fn try_from(value: i8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Direction::CENTER_DIGIT),
+            1 => Ok(Direction::K_AXES_DIGIT),
+            2 => Ok(Direction::J_AXES_DIGIT),
+            3 => Ok(Direction::JK_AXES_DIGIT),
+            4 => Ok(Direction::I_AXES_DIGIT),
+            5 => Ok(Direction::IK_AXES_DIGIT),
+            6 => Ok(Direction::IJ_AXES_DIGIT),
+            7 => Ok(Direction::INVALID_DIGIT),
+            _ => Err("Value out of range for direction digit"),
+        }
+    }
+}
+
+impl TryFrom<Direction> for usize {
+    type Error = &'static str;
+
+    fn try_from(value: Direction) -> Result<Self, Self::Error> {
+        match value {
+            Direction::CENTER_DIGIT => Ok(0),
+            Direction::K_AXES_DIGIT => Ok(1),
+            Direction::J_AXES_DIGIT => Ok(2),
+            Direction::JK_AXES_DIGIT => Ok(3),
+            Direction::I_AXES_DIGIT => Ok(4),
+            Direction::IK_AXES_DIGIT => Ok(5),
+            Direction::IJ_AXES_DIGIT => Ok(6),
+            Direction::INVALID_DIGIT => Ok(7),
+            _ => Err("Value out of range for direction digit"),
+        }
+    }
+}
+
 /** Valid digits will be less than this value. Same value as INVALID_DIGIT.
  */
 pub const NUM_DIGITS: i8 = 7;
@@ -312,7 +348,7 @@ pub fn _ijkNormalize(c: &mut CoordIJK) {
  * @return The H3 digit (0-6) corresponding to the ijk unit vector, or
  * INVALID_DIGIT on failure.
  */
-fn _unitIjkToDigit(ijk: CoordIJK) -> Direction {
+pub fn _unitIjkToDigit(ijk: CoordIJK) -> Direction {
     for i in DIGITS {
         if _ijkMatches(ijk, UNIT_VECS[i as usize]) {
             return i;
@@ -327,7 +363,7 @@ fn _unitIjkToDigit(ijk: CoordIJK) -> Direction {
  *
  * @param ijk The ijk coordinates.
  */
-fn _upAp7(ijk: &mut CoordIJK) {
+pub fn _upAp7(ijk: &mut CoordIJK) {
     // convert to CoordIJ
     let i = ijk.i - ijk.k;
     let j = ijk.j - ijk.k;
@@ -344,7 +380,7 @@ fn _upAp7(ijk: &mut CoordIJK) {
  *
  * @param ijk The ijk coordinates.
  */
-fn _upAp7r(ijk: &mut CoordIJK) {
+pub fn _upAp7r(ijk: &mut CoordIJK) {
     // convert to CoordIJ
     let i = ijk.i - ijk.k;
     let j = ijk.j - ijk.k;
@@ -461,7 +497,7 @@ pub fn _ijkRotate60cw(ijk: &mut CoordIJK) {
  *
  * @param digit Indexing digit (between 1 and 6 inclusive)
  */
-fn _rotate60ccw(digit: Direction) -> Direction {
+pub fn _rotate60ccw(digit: Direction) -> Direction {
     match digit {
         Direction::CENTER_DIGIT => Direction::CENTER_DIGIT,
         Direction::K_AXES_DIGIT => Direction::IK_AXES_DIGIT,
@@ -479,7 +515,7 @@ fn _rotate60ccw(digit: Direction) -> Direction {
  *
  * @param digit Indexing digit (between 1 and 6 inclusive)
  */
-fn _rotate60cw(digit: Direction) -> Direction {
+pub fn _rotate60cw(digit: Direction) -> Direction {
     match digit {
         Direction::CENTER_DIGIT => Direction::CENTER_DIGIT,
         Direction::K_AXES_DIGIT => Direction::JK_AXES_DIGIT,

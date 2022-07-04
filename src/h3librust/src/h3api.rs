@@ -1,3 +1,10 @@
+/**
+ * Invalid index used to indicate an error from latLngToCell and related
+ * functions or missing data in arrays of H3 indices. Analogous to NaN in
+ * floating point.
+ */
+pub const H3_NULL: u64 = 0u64;
+
 /** Maximum number of cell boundary vertices; worst case is pentagon:
  *  5 original verts + 5 edge crossings
  */

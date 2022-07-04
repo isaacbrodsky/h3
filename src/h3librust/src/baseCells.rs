@@ -1,7 +1,8 @@
-use crate::constants::H3_CELL_MODE;
-use crate::coordijk::{Direction, DIGITS};
+use crate::constants::{H3_CELL_MODE, MAX_H3_RES, NUM_BASE_CELLS, NUM_ICOSA_FACES};
+use crate::coordijk::{CoordIJK, Direction, DIGITS};
 use crate::faceijk::FaceIJK;
 use crate::h3Index::{H3_INIT, H3_SET_BASE_CELL, H3_SET_MODE};
+use crate::h3api::H3Error;
 
 /** @struct BaseCellData
  * @brief information on a single base cell
@@ -18,7 +19,7 @@ struct BaseCellData {
 const INVALID_BASE_CELL: i8 = 127;
 
 /** Maximum input for any component to face-to-base-cell lookup functions */
-const MAX_FACE_COORD: i8 = 2;
+pub const MAX_FACE_COORD: i8 = 2;
 
 /** Invalid number of rotations */
 const INVALID_ROTATIONS: i8 = -1;
@@ -38,7 +39,7 @@ struct BaseCellRotation {
  * For each base cell, for each direction, the neighboring base
  * cell ID is given. 127 indicates there is no neighbor in that direction.
  */
-const baseCellNeighbors: [[i8; 7]; NUM_BASE_CELLS] = [
+const baseCellNeighbors: [[i8; 7]; NUM_BASE_CELLS as usize] = [
     [0, 1, 5, 2, 4, 3, 8],                             // base cell 0
     [1, 7, 6, 9, 0, 3, 2],                             // base cell 1
     [2, 6, 10, 11, 0, 1, 5],                           // base cell 2
@@ -169,7 +170,7 @@ const baseCellNeighbors: [[i8; 7]; NUM_BASE_CELLS] = [
  * CCW rotations to the coordinate system of the neighbor is given.
  * -1 indicates there is no neighbor in that direction.
  */
-const baseCellNeighbor60CCWRots: [[i8; 7]; NUM_BASE_CELLS] = [
+const baseCellNeighbor60CCWRots: [[i8; 7]; NUM_BASE_CELLS as usize] = [
     [0, 5, 0, 0, 1, 5, 1],  // base cell 0
     [0, 0, 1, 0, 1, 0, 1],  // base cell 1
     [0, 0, 0, 0, 0, 5, 0],  // base cell 2
@@ -306,7 +307,7 @@ const baseCellNeighbor60CCWRots: [[i8; 7]; NUM_BASE_CELLS] = [
  * This table can be accessed using the functions `_faceIjkToBaseCell` and
  * `_faceIjkToBaseCellCCWrot60`
  */
-const faceIjkBaseCells: [[[[BaseCellRotation; 3]; 3]; 3]; NUM_ICOSA_FACES] = [
+const faceIjkBaseCells: [[[[BaseCellRotation; 3]; 3]; 3]; NUM_ICOSA_FACES as usize] = [
     [
         // face 0
         [
@@ -3076,7 +3077,7 @@ const faceIjkBaseCells: [[[[BaseCellRotation; 3]; 3]; 3]; NUM_ICOSA_FACES] = [
  * is a pentagon, the two cw offset rotation adjacent faces are given (-1
  * indicates that no cw offset rotation faces exist for this base cell).
  */
-const baseCellData: [BaseCellData; NUM_BASE_CELLS] = [
+const baseCellData: [BaseCellData; NUM_BASE_CELLS as usize] = [
     BaseCellData {
         homeFijk: FaceIJK {
             face: 1,
@@ -4056,12 +4057,12 @@ const baseCellData: [BaseCellData; NUM_BASE_CELLS] = [
 ];
 
 /** @brief Return whether or not the indicated base cell is a pentagon. */
-fn _isBaseCellPentagon(baseCell: i8) -> bool {
+pub fn _isBaseCellPentagon(baseCell: i8) -> bool {
     if baseCell < 0 || baseCell >= NUM_BASE_CELLS {
         // Base cells less than zero can not be represented in an index
         return false;
     }
-    baseCellData[baseCell].isPentagon
+    baseCellData[baseCell as usize].isPentagon
 }
 
 /** @brief Return whether the indicated base cell is a pentagon where all
@@ -4078,7 +4079,7 @@ fn _isBaseCellPolarPentagon(baseCell: i8) -> bool {
  *
  * Valid ijk+ lookup coordinates are from (0, 0, 0) to (2, 2, 2).
  */
-fn _faceIjkToBaseCell(h: FaceIJK) -> i8 {
+pub fn _faceIjkToBaseCell(h: FaceIJK) -> i8 {
     faceIjkBaseCells[h.face as usize][h.coord.i as usize][h.coord.j as usize][h.coord.k as usize]
         .baseCell
 }
@@ -4091,7 +4092,7 @@ fn _faceIjkToBaseCell(h: FaceIJK) -> i8 {
  *
  * Valid ijk+ lookup coordinates are from (0, 0, 0) to (2, 2, 2).
  */
-fn _faceIjkToBaseCellCCWrot60(h: FaceIJK) -> i8 {
+pub fn _faceIjkToBaseCellCCWrot60(h: FaceIJK) -> i8 {
     faceIjkBaseCells[h.face as usize][h.coord.i as usize][h.coord.j as usize][h.coord.k as usize]
         .ccwRot60
 }
@@ -4116,8 +4117,11 @@ fn _baseCellToCCWrot60(baseCell: i8, face: i8) -> i8 {
     for i in 0..3 {
         for j in 0..3 {
             for k in 0..3 {
-                if faceIjkBaseCells[face][i][j][k].baseCell == baseCell {
-                    return faceIjkBaseCells[face][i][j][k].ccwRot60;
+                if faceIjkBaseCells[face as usize][i as usize][j as usize][k as usize].baseCell
+                    == baseCell
+                {
+                    return faceIjkBaseCells[face as usize][i as usize][j as usize][k as usize]
+                        .ccwRot60;
                 }
             }
         }
@@ -4127,7 +4131,7 @@ fn _baseCellToCCWrot60(baseCell: i8, face: i8) -> i8 {
 
 /** @brief Return whether or not the tested face is a cw offset face.
  */
-fn _baseCellIsCwOffset(baseCell: i8, testFace: i8) -> bool {
+pub fn _baseCellIsCwOffset(baseCell: i8, testFace: i8) -> bool {
     baseCellData[baseCell as usize].cwOffsetPent[0] == testFace
         || baseCellData[baseCell as usize].cwOffsetPent[1] == testFace
 }
@@ -4135,7 +4139,8 @@ fn _baseCellIsCwOffset(baseCell: i8, testFace: i8) -> bool {
 /** @brief Return the neighboring base cell in the given direction.
  */
 fn _getBaseCellNeighbor(baseCell: i8, dir: Direction) -> i8 {
-    baseCellNeighbors[baseCell as usize][dir]
+    let dirIdx: usize = dir.try_into().unwrap();
+    baseCellNeighbors[baseCell as usize][dirIdx]
 }
 
 /** @brief Return the direction from the origin base cell to the neighbor.
@@ -4144,7 +4149,7 @@ fn _getBaseCellNeighbor(baseCell: i8, dir: Direction) -> i8 {
 fn _getBaseCellDirection(originBaseCell: i8, neighboringBaseCell: i8) -> Direction {
     for dir in DIGITS {
         let testBaseCell = _getBaseCellNeighbor(originBaseCell, dir);
-        if (testBaseCell == neighboringBaseCell) {
+        if testBaseCell == neighboringBaseCell {
             return dir;
         }
     }
@@ -4167,12 +4172,12 @@ pub fn res0CellCount() -> i32 {
  * @param out H3Index* the memory to store the resulting base cells in
  * @returns E_SUCCESS.
  */
-pub fn getRes0Cells(out: [u64]) -> H3Error {
+pub fn getRes0Cells(out: &mut [u64; NUM_BASE_CELLS as usize]) -> H3Error {
     for bc in 0..NUM_BASE_CELLS {
         let mut baseCell = H3_INIT;
         baseCell = H3_SET_MODE(baseCell, H3_CELL_MODE);
         baseCell = H3_SET_BASE_CELL(baseCell, bc);
-        out[bc] = baseCell;
+        out[bc as usize] = baseCell;
     }
     H3Error::E_SUCCESS
 }
