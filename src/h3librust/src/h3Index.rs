@@ -1,13 +1,13 @@
 use crate::baseCells::{
     _baseCellIsCwOffset, _faceIjkToBaseCell, _faceIjkToBaseCellCCWrot60, _isBaseCellPentagon,
-    MAX_FACE_COORD,
+    baseCellData, MAX_FACE_COORD,
 };
 use crate::constants::{H3_CELL_MODE, MAX_H3_RES, NUM_BASE_CELLS};
 use crate::coordijk::{
-    CoordIJK, Direction, _downAp7, _downAp7r, _ijkNormalize, _ijkSub, _rotate60ccw, _rotate60cw,
-    _unitIjkToDigit, _upAp7, _upAp7r,
+    CoordIJK, Direction, _downAp7, _downAp7r, _ijkNormalize, _ijkSub, _neighbor, _rotate60ccw,
+    _rotate60cw, _unitIjkToDigit, _upAp7, _upAp7r,
 };
-use crate::faceijk::{FaceIJK, _geoToFaceIjk};
+use crate::faceijk::{FaceIJK, Overage, _adjustOverageClassII, _faceIjkToGeo, _geoToFaceIjk};
 use crate::h3api::{H3Error, LatLng, H3_NULL};
 
 // The number of bits in an H3 index.
@@ -979,110 +979,120 @@ pub fn latLngToCell(g: LatLng, res: i32, out: &mut u64) -> H3Error {
     }
 }
 
-//  /**
-//   * Convert an H3Index to the FaceIJK address on a specified icosahedral face.
-//   * @param h The H3Index.
-//   * @param fijk The FaceIJK address, initialized with the desired face
-//   *        and normalized base cell coordinates.
-//   * @return Returns 1 if the possibility of overage exists, otherwise 0.
-//   */
-//  int _h3ToFaceIjkWithInitializedFijk(H3Index h, FaceIJK *fijk) {
-//      CoordIJK *ijk = &fijk->coord;
-//      int res = H3_GET_RESOLUTION(h);
+/**
+ * Convert an H3Index to the FaceIJK address on a specified icosahedral face.
+ * @param h The H3Index.
+ * @param fijk The FaceIJK address, initialized with the desired face
+ *        and normalized base cell coordinates.
+ * @return Returns true if the possibility of overage exists, otherwise false.
+ */
+fn _h3ToFaceIjkWithInitializedFijk(h: u64, fijk: &mut FaceIJK) -> bool {
+    // CoordIJK *ijk = &fijk->coord;
+    let res = H3_GET_RESOLUTION(h);
 
-//      // center base cell hierarchy is entirely on this face
-//      int possibleOverage = 1;
-//      if (!_isBaseCellPentagon(H3_GET_BASE_CELL(h)) &&
-//          (res == 0 ||
-//           (fijk->coord.i == 0 && fijk->coord.j == 0 && fijk->coord.k == 0)))
-//          possibleOverage = 0;
+    // center base cell hierarchy is entirely on this face
+    let mut possibleOverage = true;
+    if !_isBaseCellPentagon(H3_GET_BASE_CELL(h))
+        && (res == 0 || (fijk.coord.i == 0 && fijk.coord.j == 0 && fijk.coord.k == 0))
+    {
+        possibleOverage = false;
+    }
 
-//      for (int r = 1; r <= res; r++) {
-//          if (isResolutionClassIII(r)) {
-//              // Class III == rotate ccw
-//              _downAp7(ijk);
-//          } else {
-//              // Class II == rotate cw
-//              _downAp7r(ijk);
-//          }
+    for r in 1..=res {
+        if isResolutionClassIII(r) {
+            // Class III == rotate ccw
+            _downAp7(&mut fijk.coord);
+        } else {
+            // Class II == rotate cw
+            _downAp7r(&mut fijk.coord);
+        }
 
-//          _neighbor(ijk, H3_GET_INDEX_DIGIT(h, r));
-//      }
+        _neighbor(&mut fijk.coord, H3_GET_INDEX_DIGIT(h, r));
+    }
 
-//      return possibleOverage;
-//  }
+    possibleOverage
+}
 
-//  /**
-//   * Convert an H3Index to a FaceIJK address.
-//   * @param h The H3Index.
-//   * @param fijk The corresponding FaceIJK address.
-//   */
-//  H3Error _h3ToFaceIjk(H3Index h, FaceIJK *fijk) {
-//      int baseCell = H3_GET_BASE_CELL(h);
-//      if (baseCell < 0 || baseCell >= NUM_BASE_CELLS) {  // LCOV_EXCL_BR_LINE
-//          // Base cells less than zero can not be represented in an index
-//          // To prevent reading uninitialized memory, we zero the output.
-//          fijk->face = 0;
-//          fijk->coord.i = fijk->coord.j = fijk->coord.k = 0;
-//          return E_CELL_INVALID;
-//      }
-//      // adjust for the pentagonal missing sequence; all of sub-sequence 5 needs
-//      // to be adjusted (and some of sub-sequence 4 below)
-//      if (_isBaseCellPentagon(baseCell) && _h3LeadingNonZeroDigit(h) == 5)
-//          h = _h3Rotate60cw(h);
+/**
+ * Convert an H3Index to a FaceIJK address.
+ * @param h The H3Index.
+ * @param fijk The corresponding FaceIJK address.
+ */
+fn _h3ToFaceIjk(mut h: u64, fijk: &mut FaceIJK) -> H3Error {
+    let baseCell = H3_GET_BASE_CELL(h);
+    if baseCell < 0 || baseCell >= NUM_BASE_CELLS {
+        // LCOV_EXCL_BR_LINE
+        // Base cells less than zero can not be represented in an index
+        // To prevent reading uninitialized memory, we zero the output.
+        fijk.face = 0;
+        fijk.coord = CoordIJK { i: 0, j: 0, k: 0 };
+        return H3Error::E_CELL_INVALID;
+    }
+    // adjust for the pentagonal missing sequence; all of sub-sequence 5 needs
+    // to be adjusted (and some of sub-sequence 4 below)
+    if _isBaseCellPentagon(baseCell) && _h3LeadingNonZeroDigit(h) == Direction::IK_AXES_DIGIT {
+        h = _h3Rotate60cw(h);
+    }
 
-//      // start with the "home" face and ijk+ coordinates for the base cell of c
-//      *fijk = baseCellData[baseCell].homeFijk;
-//      if (!_h3ToFaceIjkWithInitializedFijk(h, fijk))
-//          return E_SUCCESS;  // no overage is possible; h lies on this face
+    // start with the "home" face and ijk+ coordinates for the base cell of c
+    *fijk = baseCellData[baseCell as usize].homeFijk;
+    if !_h3ToFaceIjkWithInitializedFijk(h, fijk) {
+        return H3Error::E_SUCCESS; // no overage is possible; h lies on this face
+    }
 
-//      // if we're here we have the potential for an "overage"; i.e., it is
-//      // possible that c lies on an adjacent face
+    // if we're here we have the potential for an "overage"; i.e., it is
+    // possible that c lies on an adjacent face
 
-//      CoordIJK origIJK = fijk->coord;
+    let origIJK = fijk.coord;
 
-//      // if we're in Class III, drop into the next finer Class II grid
-//      int res = H3_GET_RESOLUTION(h);
-//      if (isResolutionClassIII(res)) {
-//          // Class III
-//          _downAp7r(&fijk->coord);
-//          res++;
-//      }
+    // if we're in Class III, drop into the next finer Class II grid
+    let mut res = H3_GET_RESOLUTION(h);
+    if isResolutionClassIII(res) {
+        // Class III
+        _downAp7r(&mut fijk.coord);
+        res += 1;
+    }
 
-//      // adjust for overage if needed
-//      // a pentagon base cell with a leading 4 digit requires special handling
-//      int pentLeading4 =
-//          (_isBaseCellPentagon(baseCell) && _h3LeadingNonZeroDigit(h) == 4);
-//      if (_adjustOverageClassII(fijk, res, pentLeading4, 0) != NO_OVERAGE) {
-//          // if the base cell is a pentagon we have the potential for secondary
-//          // overages
-//          if (_isBaseCellPentagon(baseCell)) {
-//              while (_adjustOverageClassII(fijk, res, 0, 0) != NO_OVERAGE)
-//                  continue;
-//          }
+    // adjust for overage if needed
+    // a pentagon base cell with a leading 4 digit requires special handling
+    let pentLeading4 =
+        _isBaseCellPentagon(baseCell) && _h3LeadingNonZeroDigit(h) == Direction::I_AXES_DIGIT;
+    if _adjustOverageClassII(fijk, res, pentLeading4, false) != Overage::NO_OVERAGE {
+        // if the base cell is a pentagon we have the potential for secondary
+        // overages
+        if _isBaseCellPentagon(baseCell) {
+            while _adjustOverageClassII(fijk, res, false, false) != Overage::NO_OVERAGE {
+                // no op
+            }
+        }
 
-//          if (res != H3_GET_RESOLUTION(h)) _upAp7r(&fijk->coord);
-//      } else if (res != H3_GET_RESOLUTION(h)) {
-//          fijk->coord = origIJK;
-//      }
-//      return E_SUCCESS;
-//  }
+        if res != H3_GET_RESOLUTION(h) {
+            _upAp7r(&mut fijk.coord);
+        }
+    } else if res != H3_GET_RESOLUTION(h) {
+        fijk.coord = origIJK;
+    }
+    H3Error::E_SUCCESS
+}
 
-//  /**
-//   * Determines the spherical coordinates of the center point of an H3 index.
-//   *
-//   * @param h3 The H3 index.
-//   * @param g The spherical coordinates of the H3 cell center.
-//   */
-//  H3Error H3_EXPORT(cellToLatLng)(H3Index h3, LatLng *g) {
-//      FaceIJK fijk;
-//      H3Error e = _h3ToFaceIjk(h3, &fijk);
-//      if (e) {
-//          return e;
-//      }
-//      _faceIjkToGeo(&fijk, H3_GET_RESOLUTION(h3), g);
-//      return E_SUCCESS;
-//  }
+/**
+ * Determines the spherical coordinates of the center point of an H3 index.
+ *
+ * @param h3 The H3 index.
+ * @param g The spherical coordinates of the H3 cell center.
+ */
+pub fn cellToLatLng(h3: u64, g: &mut LatLng) -> H3Error {
+    let mut fijk = FaceIJK {
+        face: 0,
+        coord: CoordIJK { i: 0, j: 0, k: 0 },
+    };
+    let e = _h3ToFaceIjk(h3, &mut fijk);
+    if e != H3Error::E_SUCCESS {
+        return e;
+    }
+    _faceIjkToGeo(fijk, H3_GET_RESOLUTION(h3), g);
+    H3Error::E_SUCCESS
+}
 
 //  /**
 //   * Determines the cell boundary in spherical coordinates for an H3 index.

@@ -50,7 +50,7 @@ const INVALID_FACE: i8 = -1;
 
 /** Digit representing overage type */
 #[derive(PartialEq)]
-enum Overage {
+pub enum Overage {
     /** No overage (on original face) */
     NO_OVERAGE = 0,
     /** On face edge (only occurs on substrate grids) */
@@ -1057,7 +1057,7 @@ fn _hex2dToGeo(v: Vec2d, face: i8, res: i8, substrate: bool, g: &mut LatLng) {
  * @param res The H3 resolution of the cell.
  * @param g The spherical coordinates of the cell center point.
  */
-fn _faceIjkToGeo(h: FaceIJK, res: i8, g: &mut LatLng) {
+pub fn _faceIjkToGeo(h: FaceIJK, res: i8, g: &mut LatLng) {
     let mut v = Vec2d { x: 0.0, y: 0.0 };
     _ijkToHex2d(h.coord, &mut v);
     _hex2dToGeo(v, h.face, res, false, g);
@@ -1527,7 +1527,7 @@ fn _faceIjkToVerts(
  * @return 0 if on original face (no overage); 1 if on face edge (only occurs
  *         on substrate grids); 2 if overage on new face interior
  */
-fn _adjustOverageClassII(
+pub fn _adjustOverageClassII(
     fijk: &mut FaceIJK,
     res: i8,
     pentLeading4: bool,

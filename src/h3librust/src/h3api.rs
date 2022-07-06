@@ -98,6 +98,7 @@ pub struct CoordIJ {
 }
 
 #[repr(u32)]
+#[derive(PartialEq)]
 pub enum H3Error {
     E_SUCCESS = 0, // Success (no error)
     E_FAILED = 1,  // The operation failed but a more specific error is not available

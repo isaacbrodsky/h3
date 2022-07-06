@@ -7,13 +7,13 @@ use crate::h3api::H3Error;
 /** @struct BaseCellData
  * @brief information on a single base cell
  */
-struct BaseCellData {
+pub struct BaseCellData {
     // "home" face and normalized ijk coordinates on that face
-    homeFijk: FaceIJK,
+    pub homeFijk: FaceIJK,
     // is this base cell a pentagon?
-    isPentagon: bool,
+    pub isPentagon: bool,
     // if a pentagon, what are its two clockwise offset faces?
-    cwOffsetPent: [i8; 2],
+    pub cwOffsetPent: [i8; 2],
 }
 
 const INVALID_BASE_CELL: i8 = 127;
@@ -3077,7 +3077,7 @@ const faceIjkBaseCells: [[[[BaseCellRotation; 3]; 3]; 3]; NUM_ICOSA_FACES as usi
  * is a pentagon, the two cw offset rotation adjacent faces are given (-1
  * indicates that no cw offset rotation faces exist for this base cell).
  */
-const baseCellData: [BaseCellData; NUM_BASE_CELLS as usize] = [
+pub const baseCellData: [BaseCellData; NUM_BASE_CELLS as usize] = [
     BaseCellData {
         homeFijk: FaceIJK {
             face: 1,

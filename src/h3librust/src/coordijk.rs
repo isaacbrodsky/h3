@@ -443,7 +443,7 @@ pub fn _downAp7r(ijk: &mut CoordIJK) {
  * @param ijk The ijk coordinates.
  * @param digit The digit direction from the original ijk coordinates.
  */
-fn _neighbor(ijk: &mut CoordIJK, digit: Direction) {
+pub fn _neighbor(ijk: &mut CoordIJK, digit: Direction) {
     if digit > Direction::CENTER_DIGIT && digit < Direction::INVALID_DIGIT {
         _ijkAdd(*ijk, UNIT_VECS[digit as usize], ijk);
         _ijkNormalize(ijk);

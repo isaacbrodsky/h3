@@ -26,4 +26,7 @@ fn main() {
         &mut h2,
     );
     println!("Index: {:x}", h2);
+    let mut g = h3api::LatLng { lat: 0., lng: 0. };
+    h3Index::cellToLatLng(0x8928309236fffffu64, &mut g);
+    println!("lat: {} lng: {}", g.lat.to_degrees(), g.lng.to_degrees());
 }
