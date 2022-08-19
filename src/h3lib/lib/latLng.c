@@ -382,7 +382,7 @@ H3Error H3_EXPORT(cellAreaRads2)(H3Index cell, double *out) {
         return err;
     }
     err = H3_EXPORT(cellToBoundary)(cell, &cb);
-    if (err) {
+    if (FAULT_INJECT(err)) {
         // TODO: Uncoverable because cellToLatLng will have returned an error
         // already
         return err;

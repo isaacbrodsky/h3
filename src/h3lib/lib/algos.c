@@ -284,7 +284,7 @@ H3Error _gridDiskDistancesInternal(H3Index origin, int k, H3Index *out,
             }
             neighborResult = _gridDiskDistancesInternal(
                 nextNeighbor, k, out, distances, maxIdx, curK + 1);
-            if (neighborResult) {
+            if (FAULT_INJECT(neighborResult)) {
                 return neighborResult;
             }
         }
@@ -433,7 +433,7 @@ H3Error h3NeighborRotations(H3Index origin, Direction dir, int *rotations,
                     // moving in
                     current = _h3Rotate60ccw(current);
                     *rotations = *rotations + 1;
-                } else if (oldLeadingDigit == IK_AXES_DIGIT) {
+                } else if (FAULT_INJECT(oldLeadingDigit == IK_AXES_DIGIT)) {
                     // Rotate out of the deleted k subsequence
                     // We also need an additional change to the direction we're
                     // moving in
@@ -496,7 +496,7 @@ Direction directionForNeighbor(H3Index origin, H3Index destination) {
         int rotations = 0;
         H3Error neighborError =
             h3NeighborRotations(origin, direction, &rotations, &neighbor);
-        if (!neighborError && neighbor == destination) {
+        if (FAULT_INJECT(!neighborError) && neighbor == destination) {
             return direction;
         }
     }
@@ -596,7 +596,7 @@ H3Error H3_EXPORT(gridDiskDistancesUnsafe)(H3Index origin, int k, H3Index *out,
 
         H3Error neighborResult = h3NeighborRotations(
             origin, DIRECTIONS[direction], &rotations, &origin);
-        if (neighborResult) {
+        if (FAULT_INJECT(neighborResult)) {
             return neighborResult;
         }
         out[idx] = origin;
@@ -820,7 +820,7 @@ H3Error _getEdgeHexagons(const GeoLoop *geoloop, int64_t numHexagons, int res,
                 (destination.lng * j / numHexesEstimate);
             H3Index pointHex;
             H3Error e = H3_EXPORT(latLngToCell)(&interpolate, res, &pointHex);
-            if (e) {
+            if (FAULT_INJECT(e)) {
                 return e;
             }
             // A simple hash to store the hexagon, or move to another place if
@@ -1149,7 +1149,7 @@ H3Error H3_EXPORT(cellsToLinkedMultiPolygon)(const H3Index *h3Set,
         return err;
     }
     _vertexGraphToLinkedGeo(&graph, out);
-    if (normalizeMultiPolygon(out)) {
+    if (FAULT_INJECT(normalizeMultiPolygon(out))) {
         return E_FAILED;
     }
     destroyVertexGraph(&graph);

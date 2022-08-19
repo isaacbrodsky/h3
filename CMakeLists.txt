@@ -47,6 +47,7 @@ option(BUILD_GENERATORS "Build code generation applications." ON)
 # If ON, libfuzzer settings are used to build the fuzzer harnesses. If OFF, a frontend
 # for afl++ is provided instead.
 option(ENABLE_LIBFUZZER "Build fuzzers with libFuzzer support." OFF)
+option(ENABLE_FAULT_INJECTION "Build in code for fault injection." OFF)
 
 if(WIN32)
     # Use bash (usually from Git for Windows) for piping results
@@ -130,6 +131,7 @@ set(LIB_SOURCE_FILES
     src/h3lib/include/constants.h
     src/h3lib/include/coordijk.h
     src/h3lib/include/algos.h
+    src/h3lib/include/faultInjection.h
     src/h3lib/lib/algos.c
     src/h3lib/lib/coordijk.c
     src/h3lib/lib/bbox.c
@@ -146,7 +148,8 @@ set(LIB_SOURCE_FILES
     src/h3lib/lib/iterators.c
     src/h3lib/lib/vertexGraph.c
     src/h3lib/lib/faceijk.c
-    src/h3lib/lib/baseCells.c)
+    src/h3lib/lib/baseCells.c
+    src/h3lib/lib/faultInjection.c)
 set(APP_SOURCE_FILES
     src/apps/applib/include/kml.h
     src/apps/applib/include/benchmark.h
@@ -280,6 +283,9 @@ function(add_h3_library name h3_alloc_prefix_override)
 
     target_compile_definitions(${name} PUBLIC H3_PREFIX=${H3_PREFIX})
     target_compile_definitions(${name} PRIVATE BUILDING_H3=1)
+    if(ENABLE_FAULT_INJECTION)
+        target_compile_definitions(${name} PRIVATE ENABLE_FAULT_INJECTION=1)
+    endif()
     set(has_alloc_prefix NO)
     if(h3_alloc_prefix_override)
         set(has_alloc_prefix YES)

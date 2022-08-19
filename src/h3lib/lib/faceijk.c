@@ -451,7 +451,7 @@ void _hex2dToGeo(const Vec2d *v, int face, int res, int substrate, LatLng *g) {
     // scale accordingly if this is a substrate grid
     if (substrate) {
         r /= 3.0;
-        if (isResolutionClassIII(res)) r /= M_SQRT7;
+        if (FAULT_INJECT(isResolutionClassIII(res))) r /= M_SQRT7;
     }
 
     r *= RES0_U_GNOMONIC;
@@ -748,7 +748,7 @@ void _faceIjkToCellBoundary(const FaceIJK *h, int res, int start, int length,
             face, and no additional vertex is required.
             */
             bool isIntersectionAtVertex =
-                _v2dEquals(&orig2d0, &inter) || _v2dEquals(&orig2d1, &inter);
+                FAULT_INJECT(_v2dEquals(&orig2d0, &inter)) || _v2dEquals(&orig2d1, &inter);
             if (!isIntersectionAtVertex) {
                 _hex2dToGeo(&inter, centerIJK.face, adjRes, 1,
                             &g->verts[g->numVerts]);

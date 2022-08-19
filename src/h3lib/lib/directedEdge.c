@@ -264,7 +264,7 @@ H3Error H3_EXPORT(directedEdgeToBoundary)(H3Index edge, CellBoundary *cb) {
     // crosses an edge of the icosahedron.
     FaceIJK fijk;
     H3Error fijkResult = _h3ToFaceIjk(origin, &fijk);
-    if (fijkResult) {
+    if (FAULT_INJECT(fijkResult)) {
         return fijkResult;
     }
     int res = H3_GET_RESOLUTION(origin);
