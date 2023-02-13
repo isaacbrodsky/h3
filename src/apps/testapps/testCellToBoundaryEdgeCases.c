@@ -24,6 +24,7 @@
 #include "test.h"
 #include "utility.h"
 
+// TODO: This file uses internal functions
 SUITE(cellToBoundaryEdgeCases) {
     TEST(doublePrecisionVertex) {
         // The carefully constructed case here:

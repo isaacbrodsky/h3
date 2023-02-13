@@ -20,6 +20,7 @@
 #include "test.h"
 #include "utility.h"
 
+// TODO: This file uses internal functions
 SUITE(cellsToLinkedMultiPolygon) {
     TEST(empty) {
         LinkedGeoPolygon polygon;
