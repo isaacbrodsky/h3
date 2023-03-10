@@ -29,6 +29,53 @@
 #include "vertex.h"
 
 /**
+ * Reorder the given neighboring cells into a canonical "origin", "destination"
+ * order.
+ *
+ * The ordering created by this function is intended to give most cells the
+ * same number of origin as destination directions. This is done using the
+ * indexing digits of the cells. When cells are on different base cells, the
+ * base cell number is used to determine ordering.
+ *
+ * Invalid inputs, such as cells at different resolutions, non-neighboring
+ * cells, the same cells, etc. will not crash but the ordering produced may not
+ * be stable.
+ */
+void canonicalizeCellOrder(H3Index cell1, H3Index cell2, H3Index *origin,
+                           H3Index *destination) {
+    int bc1 = H3_GET_BASE_CELL(cell1);
+    int bc2 = H3_GET_BASE_CELL(cell2);
+
+    bool ownership;
+    if (bc1 != bc2) {
+        ownership = bc1 < bc2;
+    } else {
+        int r = H3_GET_RESOLUTION(cell1);
+        if (r != 0) {
+            Direction cell1Digit = H3_GET_INDEX_DIGIT(cell1, r - 1);
+            Direction cell2Digit = H3_GET_INDEX_DIGIT(cell1, r - 1);
+            assert(cell1Digit >= 0 && cell1Digit <= INVALID_DIGIT);
+            assert(cell2Digit >= 0 && cell2Digit <= INVALID_DIGIT);
+            // + 1 since this table includes values for INVALID_DIGIT
+            bool lookupTable[NUM_DIGITS + 1][NUM_DIGITS + 1] = {
+                {0, 1, 1, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 1, 1, 0, 0},
+                {0, 1, 0, 1, 0, 0, 1, 0}, {1, 0, 0, 0, 1, 0, 1, 0},
+                {0, 0, 1, 0, 0, 1, 1, 0}, {1, 0, 1, 1, 0, 0, 0, 0},
+                {1, 1, 0, 0, 0, 1, 0, 0}, {1, 1, 1, 1, 1, 1, 1, 1},
+            };
+            ownership = lookupTable[cell1Digit][cell2Digit];
+        } else {
+            // Only occurs if the same res0 cells are passed in for cell1 and
+            // cell2.
+            ownership = false;
+        }
+    }
+
+    *origin = ownership ? cell1 : cell2;
+    *destination = ownership ? cell2 : cell1;
+}
+
+/**
  * Wrap the error code from a directed edge function and present
  * undirected edge errors instead.
  */
@@ -60,9 +107,9 @@ H3Index edgeAsDirectedEdge(H3Index edge) {
  * @param out Output: the edge H3Index
  */
 H3Error H3_EXPORT(cellsToEdge)(H3Index cell1, H3Index cell2, H3Index *out) {
-    bool cell1IsOrigin = cell1 < cell2;
-    H3Index origin = cell1IsOrigin ? cell1 : cell2;
-    H3Index dest = cell1IsOrigin ? cell2 : cell1;
+    H3Index origin;
+    H3Index dest;
+    canonicalizeCellOrder(cell1, cell2, &origin, &dest);
     H3Error edgeErr = H3_EXPORT(cellsToDirectedEdge)(origin, dest, out);
     if (!edgeErr) {
         H3_SET_MODE(*out, H3_EDGE_MODE);
@@ -96,7 +143,9 @@ int H3_EXPORT(isValidEdge)(H3Index edge) {
         // Deleted direction from a pentagon.
         return 0;
     }
-    if (cells[1] < cells[0]) {
+    H3Index origin, dest;
+    canonicalizeCellOrder(cells[0], cells[1], &origin, &dest);
+    if (origin != cells[0] || dest != cells[1]) {
         // Not normalized
         return 0;
     }

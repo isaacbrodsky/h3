@@ -12,8 +12,6 @@ An H3 Edge index (mode 3) represents a single undirected edge between two cells.
 * 3 bits to indicate the edge (1-6) of the origin cell,
 * Subsequent bits matching the index bits of the [origin cell](./cell#h3-cell-index).
 
-Of the two cells, the cell with the numerically lower `H3Index` is picked as the origin.
-
 ## Bit layout of H3Index for directed edges
 
 The layout of an `H3Index` is shown below in table form. The interpretation of the "Mode-Dependent" field differs depending on the mode of the index.
