@@ -37,6 +37,8 @@ for i, x in enumerate(gdf.iterrows()):
     plt.savefig(f'out/{i:05}')
     plt.close()
 
+print('ok')
+
 # ffmpeg -i %05d.png -vf palettegen=reserve_transparent=1 palette.png
 # ffmpeg -framerate 30 -i %05d.png -i palette.png -lavfi paletteuse=alpha_threshold=128 -gifflags -offsetting sf_polyfill.gif
 
