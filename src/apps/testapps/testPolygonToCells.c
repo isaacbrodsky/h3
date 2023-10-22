@@ -22,6 +22,7 @@
 #include "constants.h"
 #include "h3Index.h"
 #include "latLng.h"
+#include "polyfill.h"
 #include "test.h"
 #include "utility.h"
 
@@ -157,6 +158,22 @@ SUITE(polygonToCells) {
 
     lineGeoPolygon.geoloop = lineGeoLoop;
     lineGeoPolygon.numHoles = 0;
+
+    TEST(produceAnimationOutput) {
+        int64_t numHexagons;
+        t_assertSuccess(H3_EXPORT(maxPolygonToCellsSize)(&sfGeoPolygon, 9, 0,
+                                                         &numHexagons));
+        H3Index *hexagons = calloc(numHexagons, sizeof(H3Index));
+
+        t_assertSuccess(
+            H3_EXPORT(polygonToCells2)(&sfGeoPolygon, 9, 0, hexagons));
+        int64_t actualNumIndexes = countNonNullIndexes(hexagons, numHexagons);
+
+        t_assert(actualNumIndexes == 1253, "got expected polygonToCells size");
+        free(hexagons);
+
+        exit(0);
+    }
 
     TEST(maxPolygonToCellsSize) {
         int64_t numHexagons;

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "h3scripts"
+version = "0.1.0"
+description = ""
+authors = ["Isaac Brodsky <isaac@isaacbrodsky.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+geopandas = "^0.14.0"
+contextily = "^1.4.0"
+h3 = "^4.0.0b2"
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.16.1"
+ipykernel = "^6.25.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

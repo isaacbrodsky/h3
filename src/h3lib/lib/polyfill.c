@@ -251,6 +251,7 @@ void iterStepPolygonCompact(IterCellsPolygonCompact *iter) {
     }
 
     while (cell) {
+        printf("eval2,%llx\n", cell);
         int cellRes = H3_GET_RESOLUTION(cell);
 
         // Target res: Do a fine-grained check
@@ -266,6 +267,7 @@ void iterStepPolygonCompact(IterCellsPolygonCompact *iter) {
             if (pointInsidePolygon(iter->_polygon, iter->_bboxes, &center)) {
                 // Set to next output
                 iter->cell = cell;
+                printf("found,%llx\n", cell);
                 return;
             }
         }
@@ -295,6 +297,7 @@ void iterStepPolygonCompact(IterCellsPolygonCompact *iter) {
                         // Bounding box is fully contained, so all children are
                         // included. Set to next output.
                         iter->cell = cell;
+                        printf("found2,%llx\n", cell);
                         return;
                     }
                 }
@@ -308,6 +311,7 @@ void iterStepPolygonCompact(IterCellsPolygonCompact *iter) {
                     return;
                 }
                 // Restart the loop with the child cell
+                printf("eval,%llx\n", cell);
                 cell = child;
                 continue;
             }
