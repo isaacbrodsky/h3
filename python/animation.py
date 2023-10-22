@@ -34,8 +34,10 @@ for i, x in enumerate(gdf.iterrows()):
     ax.set_xlim((sf_polygon.bounds[0] - buf, sf_polygon.bounds[2] + buf))
     ax.set_ylim((sf_polygon.bounds[1] - buf, sf_polygon.bounds[3] + buf))
     cx.add_basemap(ax, crs="EPSG:4326", source=cx.providers.CartoDB.Positron)
-    plt.savefig(f'out/{i}')
+    plt.savefig(f'out/{i:05}')
     plt.close()
 
+# ffmpeg -i %05d.png -vf palettegen=reserve_transparent=1 palette.png
+# ffmpeg -framerate 30 -i %05d.png -i palette.png -lavfi paletteuse=alpha_threshold=128 -gifflags -offsetting sf_polyfill.gif
 
 # %%
