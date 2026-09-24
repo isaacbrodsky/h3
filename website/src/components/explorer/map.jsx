@@ -295,7 +295,6 @@ export function ExplorerMap(opts) {
         hexHandleResize(viewState);
       }}
       onResize={({ width, height }) => {
-        console.log(deckRef.current?.deck.viewState);
         if (deckRef.current?.deck) {
           hexHandleResize({
             ...deckRef.current?.deck.viewState,
