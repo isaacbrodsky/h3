@@ -261,6 +261,11 @@ H3Error _gridDiskDistancesInternal(H3Index origin, int k, H3Index *out,
     // collision. maxIdx is at maximum 569707381193162 because that is number of
     // cells at res 15.
     assert(maxIdx <= 569707381193162);
+    if (NEVER(maxIdx * HASH_SET_CAPACITY_FACTOR > SIZE_MAX)) {
+        // Not reachable on 64-bit systems as size_t will be able to represent all
+        // cells. Could be triggered on a 32-bit system.
+        return E_MEMORY_ALLOC;
+    }
     size_t maxSeen = maxIdx * HASH_SET_CAPACITY_FACTOR;
     assert(maxSeen >= maxIdx);
     // maxSeen is at maximum num-cells-at-res-15 * 2:
